@@ -45,10 +45,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ShroXd/reactivity-ts.git"
+    "url": "git+https://github.com/ShroXd/tiny-template-compiler.git"
   },
   "bugs": {
-    "url": "https://github.com/ShroXd/reactivity-ts/issues"
+    "url": "https://github.com/ShroXd/tiny-template-compiler/issues"
   },
-  "homepage": "https://github.com/ShroXd/reactivity-ts#readme"
+  "homepage": "https://github.com/ShroXd/tiny-template-compiler#readme"
 }

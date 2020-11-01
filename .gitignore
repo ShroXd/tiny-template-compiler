@@ -2,5 +2,6 @@ node_modules
 /lib
 /dist
 .idea
+.vscode
 coverage
 package-lock.json

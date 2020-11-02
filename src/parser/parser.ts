@@ -68,4 +68,6 @@ function parseChildren(context) {
 
     pushNode(node, nodes);
   }
+
+  return nodes
 }

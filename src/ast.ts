@@ -16,8 +16,12 @@ export interface SourceLocation {
   end: Position;
 }
 
-export function createRoot(
+export interface Node {
+  type: NodeTypes;
+  loc: SourceLocation;
+}
 
-) {
-
+export interface CommentNode extends Node {
+  type: NodeTypes.COMMENT;
+  content: string;
 }

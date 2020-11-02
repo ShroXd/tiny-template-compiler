@@ -37,16 +37,16 @@ export function getCursor(context) {
 export function pushNode(node, nodes) {
   // merge text node
   if (node.type === NodeTypes.TEXT) {
-    const prev = nodes[nodes.length - 1]
+    const prev = nodes[nodes.length - 1];
 
     if (prev && prev.type === NodeTypes.TEXT && prev.loc.end.offset === node.loc.start.offset) {
-      prev.content += node.content
-      prev.loc.end = node.loc.end
+      prev.content += node.content;
+      prev.loc.end = node.loc.end;
       // TODO: 是否需要 source
     }
   }
 
-  nodes.push(node)
+  nodes.push(node);
 }
 
 export function getSourceLocation(context, start, end?): SourceLocation {

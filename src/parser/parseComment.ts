@@ -1,6 +1,7 @@
-import { advanceBy, getCursor, getSourceLocation } from '../utils';
+import { advanceBy, emitError, getCursor, getSourceLocation } from '../utils';
 import { NodeTypes } from '../ast';
 import { ParserContext } from './parser';
+import { ErrorCodes } from '../helpers/errors';
 
 export function parseComment(context) {
   const start = getCursor(context);
@@ -17,7 +18,7 @@ export function parseComment(context) {
   } else {
     content = source.slice(4);
     advanceBy(context, context.source.length);
-    // TODO 抛出错误
+    emitError("Compiler error", ErrorCodes.COMMENT_NOT_CLOSED, getCursor(context))
   }
 
   return {

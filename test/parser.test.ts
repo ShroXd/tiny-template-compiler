@@ -54,4 +54,10 @@ describe("Comment", () => {
             }
         })
     })
+
+    it ("not closed comment", () => {
+        expect(() => {
+            tokenizer("<!--ast")
+        }).toThrow("Compiler error")
+    })
 })

@@ -1,26 +1,19 @@
 import { ParserContext } from './parser/parser';
 import { NodeTypes, SourceLocation, TemplateNode } from './ast';
+import { CompilerError } from './helpers/errors';
 
-export interface CompilerError extends SyntaxError {
-  code: number;
-  loc?: any;
+export interface CodeLocation {
+  line: number;
+  column: number;
+  offset: number
 }
 
 export function startsWith(source: string, matching: string): boolean {
   return source.startsWith(matching);
 }
 
-export function emitError(context, code, offset, location = getCursor(context)) {
-  if (offset) {
-    location.offset += offset;
-    location.column += offset;
-  }
-
-  const error = new SyntaxError('Compiler error') as CompilerError;
-  error.code = code;
-  error.loc = location;
-
-  return error as any;
+export function emitError(msg: string, code: string, location: CodeLocation) {
+  throw new CompilerError(msg, code, location) as CompilerError;
 }
 
 export function advanceBy(context, numberOfCharacters: number): void {
@@ -29,7 +22,7 @@ export function advanceBy(context, numberOfCharacters: number): void {
   context.source = source.slice(numberOfCharacters);
 }
 
-export function getCursor(context) {
+export function getCursor(context): CodeLocation {
   const { line, column, offset } = context;
   return { line, column, offset };
 }

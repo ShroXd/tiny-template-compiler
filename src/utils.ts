@@ -1,5 +1,5 @@
-import { ParserContext } from './parser';
-import { NodeTypes } from './ast';
+import { ParserContext } from './parser/parser';
+import { NodeTypes, SourceLocation } from './ast';
 
 export interface CompilerError extends SyntaxError {
   code: number;
@@ -47,6 +47,13 @@ export function pushNode(node, nodes) {
   }
 
   nodes.push(node)
+}
+
+export function getSourceLocation(context, start, end?): SourceLocation {
+  return {
+    start,
+    end: end || getCursor(context),
+  };
 }
 
 function advancePosition(context: ParserContext, numberOfCharacters = context.source.length) {

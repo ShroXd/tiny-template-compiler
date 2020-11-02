@@ -1,4 +1,4 @@
-import { parser } from './parser';
+import { parser } from './parser/parser';
 
 export const compiler = (template: string, options = {}) => {
   // TODO generate AST

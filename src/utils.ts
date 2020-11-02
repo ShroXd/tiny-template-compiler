@@ -1,5 +1,5 @@
 import { ParserContext } from './parser/parser';
-import { NodeTypes, SourceLocation } from './ast';
+import { NodeTypes, SourceLocation, TemplateNode } from './ast';
 
 export interface CompilerError extends SyntaxError {
   code: number;
@@ -34,10 +34,11 @@ export function getCursor(context) {
   return { line, column, offset };
 }
 
-export function pushNode(node, nodes) {
+export function pushNode(node: TemplateNode, nodes: TemplateNode[]) {
   // merge text node
   if (node.type === NodeTypes.TEXT) {
-    const prev = nodes[nodes.length - 1];
+    // 向前看的缓冲
+    const prev = prevElement(nodes);
 
     if (prev && prev.type === NodeTypes.TEXT && prev.loc.end.offset === node.loc.start.offset) {
       prev.content += node.content;
@@ -72,4 +73,8 @@ function advancePosition(context: ParserContext, numberOfCharacters = context.so
   context.column = lastLineColumn === -1 ? context.column + numberOfCharacters : numberOfCharacters - lastLineColumn;
 
   return context;
+}
+
+function prevElement<T>(arr: T[]): T | undefined {
+  return arr[arr.length - 1];
 }

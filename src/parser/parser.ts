@@ -38,28 +38,26 @@ function parseChildren(context) {
   const nodes = [];
 
   while (!!context.source) {
-    const s = context.source;
+    const source = context.source;
     let node;
 
-    // TODO 类型化 options
-    if (startsWith(s, '{{')) {
-      // TODO parse interpolation
-    } else if (s[0] === '<') {
-      if (s[1] === '!') {
-        // 解析注释节点
-        if (startsWith(s, '<!--')) {
-          // TODO parse comment
-          node = parseComment(context);
-        }
+    if (startsWith(source, "<")) {
+        if (source[1] === '!') {
+          // 解析注释节点
+          if (startsWith(source, '<!--')) {
+            node = parseComment(context);
+          }
+          // TODO DOCTYPE CDATA
+        } else if (source[1] === '/') {
 
-        // TODO DOCTYPE CDATA
-      } else if (s[1] === '/') {
-        // 结束标签
-      } else if (/[a-z]/i.test(s[1])) {
-        // TODO parse element
-      } else {
-        // TODO emit error
-      }
+          // 结束标签
+        } else if (/[a-z]/i.test(source[1])) {
+          // TODO parse element
+        } else {
+          // TODO emit error
+        }
+    } else if (startsWith(source, "{{")) {
+        // TODO parse interpolation
     }
 
     if (!node) {

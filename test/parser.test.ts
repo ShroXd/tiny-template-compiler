@@ -1,12 +1,9 @@
 // @ts-ignore
-import {compiler} from "../src";
 
-describe("parser comment", () => {
-    it ("normal comment", () => {
-        const template = `
-            <!-- comment -->
-        `
+import { tokenizer } from '../src/parser';
 
-        compiler(template)
+describe("Comment", () => {
+    it("empty comment", () => {
+        const ast = tokenizer("<!---->")
     })
 })

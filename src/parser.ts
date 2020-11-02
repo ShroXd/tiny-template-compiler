@@ -1,4 +1,4 @@
-import { advanceBy, getCursor, startsWith } from './utils';
+import { advanceBy, getCursor, pushNode, startsWith } from './utils';
 import { NodeTypes, SourceLocation } from './ast';
 
 export interface ParserContext {
@@ -16,14 +16,15 @@ export function parser(content: string, options = {}) {
   // TODO generate AST
 }
 
-function tokenizer(content: string, options = {}) {
+export function tokenizer(content: string, options = {}) {
   const context = createTokenizerContext(content, options);
   return parseChildren(context);
 }
 
-function createTokenizerContext(content: string, options = {}) {
+function createTokenizerContext(content: string, options = {}): ParserContext {
   return {
     source: content,
+    originalSource: content,
     line: 1,
     column: 1,
     offset: 0,
@@ -36,7 +37,7 @@ function parseChildren(context) {
 
   while (!!context.source) {
     const s = context.source;
-    let node = undefined;
+    let node;
 
     // TODO 类型化 options
     if (startsWith(s, '{{')) {
@@ -63,7 +64,7 @@ function parseChildren(context) {
       node = parseText(context);
     }
 
-    console.log(node);
+    pushNode(node, nodes);
   }
 }
 
@@ -93,7 +94,30 @@ function parseComment(context) {
 }
 
 function parseText(context) {
-  
+  const endTokens = ["<", "{{"]
+
+  let endIndex = context.source.length
+  endTokens.forEach(val => {
+    const endTokensIndex = context.source.indexOf(val, 1)
+    if (endTokensIndex !== -1 && endIndex > endTokensIndex) {
+      endIndex = endTokensIndex
+    }
+  })
+
+  const start = getCursor(context)
+  const content = parseTextData(context, endIndex)
+
+  return {
+    type: NodeTypes.TEXT,
+    content,
+    loc: getSourceLocation(context, start)
+  }
+}
+
+function parseTextData(context, length) {
+  const raw = context.source.slice(0, length)
+  advanceBy(context, length)
+  return raw
 }
 
 function checkCommentContent(match: RegExpExecArray) {
@@ -104,10 +128,11 @@ function checkCommentContent(match: RegExpExecArray) {
 
 function checkNestedComment(context: ParserContext, match: RegExpExecArray) {
   const s = context.source.slice(0, match.index);
-  let firstCommentHeadIndex = 1,
-    secondCommentHeadIndex = 0;
+  let firstCommentHeadIndex = 1;
+  let secondCommentHeadIndex = 0;
 
-  while ((secondCommentHeadIndex = s.indexOf('<!--', firstCommentHeadIndex)) !== -1) {
+  secondCommentHeadIndex = s.indexOf('<!--', firstCommentHeadIndex);
+  while (secondCommentHeadIndex !== -1) {
     // 存在嵌套
     advanceBy(context, secondCommentHeadIndex - firstCommentHeadIndex + 1);
     if (secondCommentHeadIndex + 4 < s.length) {
@@ -115,6 +140,7 @@ function checkNestedComment(context: ParserContext, match: RegExpExecArray) {
     }
     // 匹配第二个 <!--
     firstCommentHeadIndex = secondCommentHeadIndex + 1;
+    secondCommentHeadIndex = s.indexOf('<!--', firstCommentHeadIndex);
   }
 
   return firstCommentHeadIndex - 1;

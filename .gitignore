@@ -1,7 +1,9 @@
+.idea
+.vscode
+.vs
 node_modules
 /lib
 /dist
-.idea
-.vscode
 coverage
 package-lock.json
+*.log

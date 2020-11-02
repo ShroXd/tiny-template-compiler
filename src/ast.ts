@@ -15,3 +15,9 @@ export interface SourceLocation {
   start: Position;
   end: Position;
 }
+
+export function createRoot(
+
+) {
+
+}

@@ -1,6 +1,7 @@
 .idea
 .vscode
 .vs
+.VSCodeCounter
 node_modules
 /lib
 /dist

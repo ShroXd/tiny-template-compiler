@@ -43,7 +43,7 @@ function parseChildren(context: ParserContext) {
 
   while (context.source) {
     const stream = context.source
-    let token: Token = undefined
+    let token: Token
 
     if (isTagOpen(stream)) {
       if (isComment(stream)) {
@@ -96,18 +96,18 @@ function parseChildren(context: ParserContext) {
 function handleWhiteSpace(tokens: TemplateBaseNode[]) {
   let needFilterWhitespace = false
 
-  tokens.forEach((val, index, tokens) => {
+  tokens.forEach((val, index, arr) => {
     if (val.type === NodeTypes.TEXT) {
       if (hasRedundantCharacters(val.content)) {
         val.content = val.content.replace(/[\t\r\n\f ]+/g, " ")
       }
 
-      const prev = tokens[index - 1]
-      const next = tokens[index + 1]
+      const prev = arr[index - 1]
+      const next = arr[index + 1]
 
       if (isNeedIgnoreWhitespace(prev, next, val.content)) {
         needFilterWhitespace = true
-        tokens[index] = null as any;
+        arr[index] = null as any;
       } else {
         val.content = " "
       }

@@ -1,7 +1,7 @@
 import { advanceBy, getCursor, getSourceLocation } from '../utils';
-import { NodeTypes } from '../ast';
+import { NodeTypes, TextNode } from '../ast';
 
-export function parseText(context) {
+export function parseText(context): TextNode {
   const endTokens = ["<", "{{"]
 
   let endIndex = context.source.length

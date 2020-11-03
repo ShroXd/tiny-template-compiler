@@ -2,7 +2,8 @@ import { CodeLocation } from '../utils';
 
 export const enum ErrorCodes {
   // parse errors
-  COMMENT_NOT_CLOSED = "Comment is not closed"
+  COMMENT_NOT_CLOSED = "Comment is not closed",
+  INVALID_FIRST_CHARACTER_OF_TAG_NAME = "Invalid first character of tag nam"
 }
 
 export interface CompilerError extends Error {

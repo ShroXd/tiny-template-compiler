@@ -1,7 +1,11 @@
-import { advanceBy, getCursor, getSourceLocation, pushNode, startsWith } from '../utils';
-import { NodeTypes, SourceLocation } from '../ast';
+import { isArray } from './../utils';
+import { TemplateBaseNode } from './../ast';
+import { emitError, getCursor, pushNode, startsWith } from '../utils';
 import { parseComment } from './parseComment';
 import { parseText } from './parseText';
+import { ErrorCodes } from '../helpers/errors';
+
+type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
 export interface ParserContext {
   source: string;
@@ -35,37 +39,83 @@ function createTokenizerContext(content: string, options = {}): ParserContext {
 }
 
 function parseChildren(context) {
-  const nodes = [];
+  const tokens: TemplateBaseNode[] = []
 
-  while (!!context.source) {
-    const source = context.source;
-    let node;
+  while (context.source) {
+    const stream = context.source
+    let token: Token = undefined
 
-    if (startsWith(source, "<")) {
-        if (source[1] === '!') {
-          // 解析注释节点
-          if (startsWith(source, '<!--')) {
-            node = parseComment(context);
-          }
-          // TODO DOCTYPE CDATA
-        } else if (source[1] === '/') {
+    if (isTagOpen(stream)) {
 
-          // 结束标签
-        } else if (/[a-z]/i.test(source[1])) {
-          // TODO parse element
-        } else {
-          // TODO emit error
+      if (maybeComment(stream)) {
+
+        if (isNormalComment(stream)) {
+          token = parseComment(context)
+        } else if (isBogusComment(stream)) {
+          // TODO parse bogus comment
+        } else if (isCDATA(stream)) {
+          // TODO parse CDATA
         }
-    } else if (startsWith(source, "{{")) {
-        // TODO parse interpolation
+
+      } else if (isTagClosed(stream)) {
+        // TODO parse closed tag
+      } else if (isElement(stream)) {
+        // TODO parse element
+      } else {
+        emitError("Compiler error", ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, getCursor(context))
+      }
+    } else if (isInterpolation(stream)) {
+
     }
 
-    if (!node) {
-      node = parseText(context);
+    if (!token) {
+      token = parseText(context)
     }
 
-    pushNode(node, nodes);
+    saveCurrentToken(token, tokens)
   }
 
-  return nodes
+  return tokens
+}
+
+function isTagOpen(stream: string): boolean {
+  return stream.startsWith("<")
+}
+
+function isInterpolation(stream: string): boolean {
+  return stream.startsWith("{{")
+}
+
+function maybeComment(stream: string): boolean {
+  return stream[1] === "!"
+}
+
+function isNormalComment(stream: string): boolean {
+  return stream.startsWith("<!--")
+}
+
+function isBogusComment(stream: string): boolean {
+  return stream.startsWith("<!DOCTYPE")
+}
+
+function isCDATA(stream: string): boolean {
+  return stream.startsWith("![CDATA[")
+}
+
+function isTagClosed(stream: string): boolean {
+  return stream[1] === "/"
+}
+
+function isElement(stream: string): boolean {
+  return /[a-z]/i.test(stream[1])
+}
+
+function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {
+  if (isArray(token)) {
+    token.forEach(t => {
+      pushNode(t, tokens)
+    })
+  } else {
+    pushNode(token, tokens)
+  }
 }

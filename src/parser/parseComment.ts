@@ -1,9 +1,9 @@
 import { advanceBy, emitError, getCursor, getSourceLocation } from '../utils';
-import { NodeTypes } from '../ast';
+import { NodeTypes, CommentNode } from '../ast';
 import { ParserContext } from './parser';
 import { ErrorCodes } from '../helpers/errors';
 
-export function parseComment(context) {
+export function parseComment(context): CommentNode {
   const start = getCursor(context);
   const { source } = context;
   let content: string;

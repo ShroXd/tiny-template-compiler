@@ -10,7 +10,6 @@ export const enum NodeTypes {
 
 export interface Node {
   type: NodeTypes;
-  tag: string | undefined;
   loc: SourceLocation;
 }
 
@@ -30,7 +29,7 @@ export interface ElementNode extends Node {
   tag: string;
 }
 
-export type TemplateNode = CommentNode | TextNode | ElementNode;
+export type TemplateBaseNode = CommentNode | TextNode | ElementNode;
 
 /*
  * Pattern

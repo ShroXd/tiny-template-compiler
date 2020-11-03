@@ -1,15 +1,15 @@
-import { NodeTypes, TemplateNode } from '../ast';
+import { NodeTypes, TemplateBaseNode } from '../ast';
 
 const closeTag = ["img", "br"]
 
 export class MatchStack {
-  private readonly stack: TemplateNode[]
+  private readonly stack: TemplateBaseNode[]
 
   constructor() {
     this.stack = []
   }
 
-  match(el: TemplateNode): boolean {
+  match(el: TemplateBaseNode): boolean {
     if (this.stack.length < 1) {
       this.push(el)
       return false
@@ -29,7 +29,7 @@ export class MatchStack {
     return this.stack.length === 0
   }
 
-  private push(el: TemplateNode): void {
+  private push(el: TemplateBaseNode): void {
     if (el.type !== NodeTypes.ELEMENT || (el.tag && closeTag.indexOf(el.tag) !== -1)) {
       return
     }

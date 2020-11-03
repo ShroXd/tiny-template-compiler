@@ -1,11 +1,11 @@
 import { ParserContext } from './parser/parser';
-import { NodeTypes, SourceLocation, TemplateNode } from './ast';
+import { NodeTypes, SourceLocation, TemplateBaseNode } from './ast';
 import { CompilerError } from './helpers/errors';
 
 export interface CodeLocation {
   line: number;
   column: number;
-  offset: number
+  offset: number;
 }
 
 export function startsWith(source: string, matching: string): boolean {
@@ -27,7 +27,7 @@ export function getCursor(context): CodeLocation {
   return { line, column, offset };
 }
 
-export function pushNode(node: TemplateNode, nodes: TemplateNode[]) {
+export function pushNode(node: TemplateBaseNode, nodes: TemplateBaseNode[]) {
   // merge text node
   if (node.type === NodeTypes.TEXT) {
     // 向前看的缓冲
@@ -49,6 +49,8 @@ export function getSourceLocation(context, start, end?): SourceLocation {
     end: end || getCursor(context),
   };
 }
+
+export const isArray = Array.isArray;
 
 function advancePosition(context: ParserContext, numberOfCharacters = context.source.length) {
   const { source } = context;

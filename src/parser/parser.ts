@@ -1,9 +1,10 @@
-import { isArray } from './../utils';
+import { advanceBy, isArray } from './../utils';
 import { NodeTypes, TemplateBaseNode } from './../ast';
 import { emitError, getCursor, pushNode, startsWith } from '../utils';
 import { parseComment } from './parseComment';
 import { parseText } from './parseText';
 import { ErrorCodes } from '../helpers/errors';
+import { parseElement } from './parseElement';
 
 type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
@@ -45,7 +46,7 @@ function parseChildren(context: ParserContext) {
     let token: Token = undefined
 
     if (isTagOpen(stream)) {
-      if (maybeComment(stream)) {
+      if (isComment(stream)) {
         if (isNormalComment(stream)) {
           token = parseComment(context)
         } else if (isBogusComment(stream)) {
@@ -55,8 +56,24 @@ function parseChildren(context: ParserContext) {
         }
       } else if (isTagClosed(stream)) {
         // TODO parse closed tag
+        if (stream.length === 2  /* </ */) {
+          emitError("Compiler error", ErrorCodes.EOF_BEFORE_TAG_NAME, getCursor(context))
+        } else if (stream[2] === ">"  /* </> */) {
+          emitError("Compiler error", ErrorCodes.MISSING_END_TAG_NAME, getCursor(context))
+          advanceBy(context, 3)
+          continue
+        } else if (/[a-z]/i.test(stream[2])) {
+          // TODO pargeTag()
+          continue
+        } else {
+          emitError("Compiler error", ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, getCursor(context))
+          // TODO parseBogusComment()
+        }
       } else if (isElement(stream)) {
-        // TODO parse element
+        token = parseElement()
+      } else if (stream[1] === "?") {
+        emitError("Compiler error", ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME, getCursor(context))
+        // TODO parseBogunComment()
       } else {
         emitError("Compiler error", ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, getCursor(context))
       }
@@ -110,7 +127,7 @@ function isInterpolation(stream: string): boolean {
   return stream.startsWith("{{")
 }
 
-function maybeComment(stream: string): boolean {
+function isComment(stream: string): boolean {
   return stream[1] === "!"
 }
 

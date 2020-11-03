@@ -1,6 +1,6 @@
-import { ParserContext } from './parser/parser';
-import { NodeTypes, SourceLocation, TemplateBaseNode } from './ast';
-import { CompilerError } from './helpers/errors';
+import { ParserContext } from "./parser/parser";
+import { NodeTypes, SourceLocation, TemplateBaseNode } from "./ast";
+import { CompilerError } from "./helpers/errors";
 
 export interface CodeLocation {
   line: number;
@@ -28,16 +28,8 @@ export function getCursor(context): CodeLocation {
 }
 
 export function pushNode(node: TemplateBaseNode, nodes: TemplateBaseNode[]) {
-  // merge text node
   if (node.type === NodeTypes.TEXT) {
-    // 向前看的缓冲
-    const prev = prevElement(nodes);
-
-    if (prev && prev.type === NodeTypes.TEXT && prev.loc.end.offset === node.loc.start.offset) {
-      prev.content += node.content;
-      prev.loc.end = node.loc.end;
-      // TODO: 是否需要 source
-    }
+    // mergeTextNode(prevElement(nodes), node);
   }
 
   nodes.push(node);
@@ -52,7 +44,10 @@ export function getSourceLocation(context, start, end?): SourceLocation {
 
 export const isArray = Array.isArray;
 
-function advancePosition(context: ParserContext, numberOfCharacters = context.source.length) {
+function advancePosition(
+  context: ParserContext,
+  numberOfCharacters = context.source.length,
+) {
   const { source } = context;
   let newLinesCount = 0;
   const lastLineColumn = -1;
@@ -65,9 +60,23 @@ function advancePosition(context: ParserContext, numberOfCharacters = context.so
 
   context.line += newLinesCount;
   context.offset += numberOfCharacters;
-  context.column = lastLineColumn === -1 ? context.column + numberOfCharacters : numberOfCharacters - lastLineColumn;
+  context.column =
+    lastLineColumn === -1
+      ? context.column + numberOfCharacters
+      : numberOfCharacters - lastLineColumn;
 
   return context;
+}
+
+function mergeTextNode(prev: TemplateBaseNode, node: TemplateBaseNode) {
+  if (
+    prev &&
+    prev.type === NodeTypes.TEXT &&
+    prev.loc.end.offset === node.loc.start.offset
+  ) {
+    prev.content += node.content;
+    prev.loc.end = node.loc.end;
+  }
 }
 
 function prevElement<T>(arr: T[]): T | undefined {

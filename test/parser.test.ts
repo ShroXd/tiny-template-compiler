@@ -55,6 +55,27 @@ describe("Comment", () => {
         })
     })
 
+    it ("skip witespace", () => {
+        const ast = tokenizer(`
+                
+        
+        aa
+
+        a
+        <!--abc-->
+        `)
+        const comment = ast[0] as CommentNode
+
+        expect(comment).toStrictEqual({
+            type: NodeTypes.COMMENT,
+            content: "abc",
+            loc: {
+                start: { line: 7, column: 58, offset: 57 },
+                end: { line: 7, column: 68, offset: 67 }
+            }
+        })
+    })
+
     it ("not closed comment", () => {
         expect(() => {
             tokenizer("<!--ast")

@@ -35,7 +35,7 @@ export type TemplateBaseNode = CommentNode | TextNode | ElementNode;
  * Pattern
  */
 export enum Pattern {
-  COMMENT = '<!--',
+  COMMENT = "<!--",
 }
 
 /*

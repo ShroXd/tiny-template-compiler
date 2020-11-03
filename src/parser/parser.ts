@@ -1,5 +1,5 @@
 import { isArray } from './../utils';
-import { TemplateBaseNode } from './../ast';
+import { NodeTypes, TemplateBaseNode } from './../ast';
 import { emitError, getCursor, pushNode, startsWith } from '../utils';
 import { parseComment } from './parseComment';
 import { parseText } from './parseText';
@@ -17,7 +17,6 @@ export interface ParserContext {
 }
 
 export function parser(content: string, options = {}) {
-  // TODO tokenizer
   tokenizer(content, options);
   // TODO generate AST
 }
@@ -38,17 +37,15 @@ function createTokenizerContext(content: string, options = {}): ParserContext {
   };
 }
 
-function parseChildren(context) {
-  const tokens: TemplateBaseNode[] = []
+function parseChildren(context: ParserContext) {
+  let tokens: TemplateBaseNode[] = []
 
   while (context.source) {
     const stream = context.source
     let token: Token = undefined
 
     if (isTagOpen(stream)) {
-
       if (maybeComment(stream)) {
-
         if (isNormalComment(stream)) {
           token = parseComment(context)
         } else if (isBogusComment(stream)) {
@@ -56,7 +53,6 @@ function parseChildren(context) {
         } else if (isCDATA(stream)) {
           // TODO parse CDATA
         }
-
       } else if (isTagClosed(stream)) {
         // TODO parse closed tag
       } else if (isElement(stream)) {
@@ -65,7 +61,7 @@ function parseChildren(context) {
         emitError("Compiler error", ErrorCodes.INVALID_FIRST_CHARACTER_OF_TAG_NAME, getCursor(context))
       }
     } else if (isInterpolation(stream)) {
-
+      // TODO parse interpolation
     }
 
     if (!token) {
@@ -75,7 +71,35 @@ function parseChildren(context) {
     saveCurrentToken(token, tokens)
   }
 
+  tokens = handleWhiteSpace(tokens)
+
   return tokens
+}
+
+function handleWhiteSpace(tokens: TemplateBaseNode[]) {
+  let needFilterWhitespace = false
+
+  tokens.forEach((val, index, tokens) => {
+    if (val.type === NodeTypes.TEXT) {
+      if (hasRedundantCharacters(val.content)) {
+        val.content = val.content.replace(/[\t\r\n\f ]+/g, " ")
+      }
+
+      const prev = tokens[index - 1]
+      const next = tokens[index + 1]
+
+      if (isNeedIgnoreWhitespace(prev, next, val.content)) {
+        needFilterWhitespace = true
+        tokens[index] = null as any;
+      } else {
+        val.content = " "
+      }
+    }
+
+    // TODO Maybe remove comment in production
+  })
+
+  return needFilterWhitespace ? tokens.filter(Boolean) : tokens
 }
 
 function isTagOpen(stream: string): boolean {
@@ -118,4 +142,20 @@ function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {
   } else {
     pushNode(token, tokens)
   }
+}
+
+function hasRedundantCharacters(content: string) {
+  return /[^\t\r\n\f]/.test(content)
+}
+
+function isNeedIgnoreWhitespace(prev: TemplateBaseNode, next: TemplateBaseNode, content: string) {
+  return !prev || !next || isAdjacentToComment(prev, next) || isContainsNewlineAndBetweenElements(prev, next, content)
+}
+
+function isAdjacentToComment(prev: TemplateBaseNode, next: TemplateBaseNode) {
+  return prev.type === NodeTypes.COMMENT || next.type === NodeTypes.COMMENT
+}
+
+function isContainsNewlineAndBetweenElements(prev: TemplateBaseNode, next: TemplateBaseNode, content: string) {
+  return prev.type === NodeTypes.ELEMENT && next.type === NodeTypes.ELEMENT && /[\r\n]/.test(content)
 }

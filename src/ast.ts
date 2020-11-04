@@ -57,8 +57,8 @@ export interface TextNode extends Node {
 }
 
 export interface AttributeNode extends Node {
-  type: NodeTypes.ATTRIBUTE,
-  name: string,
+  type: NodeTypes.ATTRIBUTE
+  name: string
   value: TextNode | undefined
 }
 
@@ -83,4 +83,9 @@ export interface Position {
 export interface SourceLocation {
   start: Position
   end: Position
+}
+
+export const enum TagType {
+  Start,
+  End,
 }

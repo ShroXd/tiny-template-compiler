@@ -6,7 +6,13 @@ export const enum ErrorCodes {
   EOF_BEFORE_TAG_NAME = "EOF before tag name",
   MISSING_END_TAG_NAME = "Missing end tag name",
   INVALID_FIRST_CHARACTER_OF_TAG_NAME = "Invalid first character of tag name",
-  UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME = "Unexpected question mark instead of tag name"
+  UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME = "Unexpected question mark instead of tag name",
+  END_TAG_WITH_ATTRIBUTES = "End tag cannot have attributes",
+  MISSING_WHITESPACE_BETWEEN_ATTRIBUTES = "Whitespace was expected",
+  DUPLICATE_ATTRIBUTE = "Duplicate attribute",
+  UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME = "Unexpected character in attribute name",
+  UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME = "Attribute name cannot start with '='",
+  MISSING_ATTRIBUTE_VALUE = "Missing attribute value",
 }
 
 export interface CompilerError extends Error {

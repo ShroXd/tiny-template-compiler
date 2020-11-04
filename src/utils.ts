@@ -22,6 +22,13 @@ export function advanceBy(context, numberOfCharacters: number): void {
   context.source = source.slice(numberOfCharacters)
 }
 
+export function advanceSpaces(context: ParserContext): void {
+  const match = /^[\t\r\n\f ]+/.exec(context.source)
+  if (match) {
+    advanceBy(context, match[0].length)
+  }
+}
+
 export function getCursor(context): CodeLocation {
   const { line, column, offset } = context
   return { line, column, offset }
@@ -74,7 +81,7 @@ function mergeTextNode(prev: TemplateBaseNode, node: TemplateBaseNode) {
     prev.type === NodeTypes.TEXT &&
     prev.loc.end.offset === node.loc.start.offset
   ) {
-    prev.content += node.content
+    // prev.content += node.content
     prev.loc.end = node.loc.end
   }
 }

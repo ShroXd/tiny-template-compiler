@@ -1,6 +1,5 @@
-import { advanceBy, isArray } from './../utils'
-import { NodeTypes, TemplateBaseNode } from './../ast'
-import { emitError, getCursor, pushNode, startsWith } from '../utils'
+import { NodeTypes, TemplateBaseNode, ElementNode } from './../ast'
+import { emitError, getCursor, pushNode, advanceBy, isArray } from '../utils'
 import { parseComment } from './parseComment'
 import { parseText } from './parseText'
 import { ErrorCodes } from '../helpers/errors'
@@ -24,7 +23,7 @@ export function parser(content: string, options = {}) {
 
 export function tokenizer(content: string, options = {}) {
   const context = createTokenizerContext(content, options)
-  return parseChildren(context)
+  return parseChildren(context, [])
 }
 
 function createTokenizerContext(content: string, options = {}): ParserContext {
@@ -38,7 +37,7 @@ function createTokenizerContext(content: string, options = {}): ParserContext {
   }
 }
 
-function parseChildren(context: ParserContext) {
+export function parseChildren(context: ParserContext, ancestors: ElementNode[]) {
   let tokens: TemplateBaseNode[] = []
 
   while (context.source) {
@@ -55,7 +54,6 @@ function parseChildren(context: ParserContext) {
           // TODO parse CDATA
         }
       } else if (isTagClosed(stream)) {
-        // TODO parse closed tag
         if (stream.length === 2 /* </ */) {
           emitError(
             'Compiler error',
@@ -82,7 +80,7 @@ function parseChildren(context: ParserContext) {
           // TODO parseBogusComment()
         }
       } else if (isElement(stream)) {
-        token = parseElement()
+        token = parseElement(context, ancestors)
       } else if (stream[1] === '?') {
         emitError(
           'Compiler error',

@@ -1,6 +1,12 @@
 import { AttributeNode, SourceLocation, TagType } from '../ast'
 import { ErrorCodes } from '../helpers/errors'
-import { advanceBy, advanceSpaces, emitError, getCursor, getSourceLocation } from '../utils'
+import {
+  advanceBy,
+  advanceSpaces,
+  emitError,
+  getCursor,
+  getSourceLocation,
+} from '../utils'
 import { ParserContext } from './parser'
 
 interface AttributeValue {
@@ -73,7 +79,6 @@ function parseAttribute(
   const loc = getSourceLocation(context, start)
 
   // TODO 如果添加了 v-pre 的处理
-
 
   return {} as AttributeNode
 }

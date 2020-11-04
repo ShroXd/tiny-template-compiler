@@ -1,13 +1,47 @@
-/**
- * Node Type
- */
+export const enum ElementTypes {
+  ELEMENT,
+  COMPONENT,
+  SLOT,
+  TEMPLATE,
+}
+
 export const enum NodeTypes {
   ROOT,
   ELEMENT,
   TEXT,
   COMMENT,
+  ATTRIBUTE,
 }
 
+/**
+ * Element Type
+ */
+export interface BaseElementNode extends Node {
+  type: NodeTypes.ELEMENT
+  namespace: number
+  tag: string
+  isSelfClosing: boolean
+  props: AttributeNode[]
+  children: TemplateBaseNode[]
+}
+
+export interface ComponentNode extends BaseElementNode {
+  tagType: ElementTypes.COMPONENT
+}
+
+export interface SlotNode extends BaseElementNode {
+  tagType: ElementTypes.SLOT
+}
+
+export interface TemplateNode extends BaseElementNode {
+  tagType: ElementTypes.TEMPLATE
+}
+
+export type ElementNode = ComponentNode | SlotNode | TemplateNode
+
+/**
+ * Node Type
+ */
 export interface Node {
   type: NodeTypes
   loc: SourceLocation
@@ -23,10 +57,10 @@ export interface TextNode extends Node {
   content: string
 }
 
-export interface ElementNode extends Node {
-  type: NodeTypes.ELEMENT
-  content: string
-  tag: string
+export interface AttributeNode extends Node {
+  type: NodeTypes.ATTRIBUTE
+  name: string
+  value: TextNode | undefined
 }
 
 export type TemplateBaseNode = CommentNode | TextNode | ElementNode
@@ -50,4 +84,9 @@ export interface Position {
 export interface SourceLocation {
   start: Position
   end: Position
+}
+
+export const enum TagType {
+  Start,
+  End,
 }

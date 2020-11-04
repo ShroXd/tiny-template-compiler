@@ -13,6 +13,7 @@ export function startsWith(source: string, matching: string): boolean {
 }
 
 export function emitError(msg: string, code: string, location: CodeLocation) {
+  // TODO 对截断编译和 warn 的错误区分开
   throw new CompilerError(msg, code, location) as CompilerError
 }
 
@@ -20,6 +21,13 @@ export function advanceBy(context, numberOfCharacters: number): void {
   const { source } = context
   advancePosition(context, numberOfCharacters)
   context.source = source.slice(numberOfCharacters)
+}
+
+export function advanceSpaces(context: ParserContext): void {
+  const match = /^[\t\r\n\f ]+/.exec(context.source)
+  if (match) {
+    advanceBy(context, match[0].length)
+  }
 }
 
 export function getCursor(context): CodeLocation {
@@ -74,11 +82,7 @@ function mergeTextNode(prev: TemplateBaseNode, node: TemplateBaseNode) {
     prev.type === NodeTypes.TEXT &&
     prev.loc.end.offset === node.loc.start.offset
   ) {
-    prev.content += node.content
+    // prev.content += node.content
     prev.loc.end = node.loc.end
   }
-}
-
-function prevElement<T>(arr: T[]): T | undefined {
-  return arr[arr.length - 1]
 }

@@ -1,4 +1,4 @@
-import { AttributeNode, SourceLocation, TagType } from '../ast'
+import { AttributeNode, NodeTypes, SourceLocation, TagType } from '../ast'
 import { ErrorCodes } from '../helpers/errors'
 import {
   advanceBy,
@@ -56,7 +56,7 @@ function parseAttribute(
   context: ParserContext,
   attributeNames: Set<string>
 ): AttributeNode {
-  parseAttributeName(context, attributeNames)
+  const name = parseAttributeName(context, attributeNames)
 
   // Parse value
   const start = getCursor(context)
@@ -78,15 +78,28 @@ function parseAttribute(
   }
   const loc = getSourceLocation(context, start)
 
-  // TODO 如果添加了 v-pre 的处理
+  if (isAttributeSugar(name)) {
+    // TODO 语法脱糖
+    const match = /(?:^v-([a-z0-9-]+))?$/i.exec(name)!
+    const desugar = match[1]
+  }
 
-  return {} as AttributeNode
+  return {
+      type: NodeTypes.ATTRIBUTE,
+      name,
+      value: value && {
+        type: NodeTypes.TEXT,
+        content: value.content,
+        loc: value.loc
+      },
+      loc
+  }
 }
 
 function parseAttributeName(
   context: ParserContext,
   attributeNames: Set<string>
-) {
+): string {
   const match = fetchAttributeName(context)
   const name = match[0]
 
@@ -94,6 +107,8 @@ function parseAttributeName(
 
   attributeNames.add(name)
   advanceBy(context, name.length)
+
+  return name
 }
 
 function parseAttributeValue(context: ParserContext): AttributeValue {
@@ -156,4 +171,8 @@ function checkAttributeValue(context: ParserContext) {
   let value: AttributeValue | undefined
 
   return value
+}
+
+function isAttributeSugar(name: string): boolean {
+  return /^(v-|:|@|#)/.test(name)
 }

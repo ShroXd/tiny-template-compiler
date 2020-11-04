@@ -37,7 +37,10 @@ function createTokenizerContext(content: string, options = {}): ParserContext {
   }
 }
 
-export function parseChildren(context: ParserContext, ancestors: ElementNode[]) {
+export function parseChildren(
+  context: ParserContext,
+  ancestors: ElementNode[]
+) {
   let tokens: TemplateBaseNode[] = []
 
   while (context.source) {

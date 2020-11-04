@@ -85,14 +85,14 @@ function parseAttribute(
   }
 
   return {
-      type: NodeTypes.ATTRIBUTE,
-      name,
-      value: value && {
-        type: NodeTypes.TEXT,
-        content: value.content,
-        loc: value.loc
-      },
-      loc
+    type: NodeTypes.ATTRIBUTE,
+    name,
+    value: value && {
+      type: NodeTypes.TEXT,
+      content: value.content,
+      loc: value.loc,
+    },
+    loc,
   }
 }
 

@@ -1,3 +1,3 @@
-test("tet", () => {
-    expect(1 + 1).toEqual(2)
+test('tet', () => {
+  expect(1 + 1).toEqual(2)
 })

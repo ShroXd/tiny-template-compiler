@@ -20,15 +20,18 @@ export interface BaseElementNode extends Node {
   type: NodeTypes.ELEMENT
   tag: string
   isSelfClosing: boolean
+  props: Array<AttributeNode>
   children: TemplateBaseNode[]
 }
 
 export interface ComponentNode extends BaseElementNode {
   tagType: ElementTypes.COMPONENT
+  codegenNode: undefined
 }
 
 export interface SlotNode extends BaseElementNode {
   tagType: ElementTypes.SLOT
+  codegenNode: undefined
 }
 
 export interface TemplateNode extends BaseElementNode {

@@ -1,6 +1,6 @@
-import { NodeTypes, ElementNode } from '../ast';
+import { NodeTypes, ElementNode } from '../ast'
 
-const closeTag = ["img", "br"]
+const closeTag = ['img', 'br']
 
 export class MatchStack {
   private readonly stack: ElementNode[]
@@ -34,7 +34,10 @@ export class MatchStack {
   }
 
   private push(el: ElementNode): void {
-    if (el.type !== NodeTypes.ELEMENT || (el.tag && closeTag.indexOf(el.tag) !== -1)) {
+    if (
+      el.type !== NodeTypes.ELEMENT ||
+      (el.tag && closeTag.indexOf(el.tag) !== -1)
+    ) {
       return
     }
     this.stack.push(el)

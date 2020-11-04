@@ -1,11 +1,11 @@
-import { advanceBy, getCursor, getSourceLocation } from '../utils';
-import { NodeTypes, TextNode } from '../ast';
+import { advanceBy, getCursor, getSourceLocation } from '../utils'
+import { NodeTypes, TextNode } from '../ast'
 
 export function parseText(context): TextNode {
-  const endTokens = ["<", "{{"]
+  const endTokens = ['<', '{{']
 
   let endIndex = context.source.length
-  endTokens.forEach(val => {
+  endTokens.forEach((val) => {
     const endTokensIndex = context.source.indexOf(val, 1)
     if (endTokensIndex !== -1 && endIndex > endTokensIndex) {
       endIndex = endTokensIndex
@@ -18,7 +18,7 @@ export function parseText(context): TextNode {
   return {
     type: NodeTypes.TEXT,
     content,
-    loc: getSourceLocation(context, start)
+    loc: getSourceLocation(context, start),
   }
 }
 

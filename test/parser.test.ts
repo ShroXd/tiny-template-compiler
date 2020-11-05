@@ -1,7 +1,7 @@
 // @ts-ignore
 
 import { tokenizer } from '../src/parser/parser'
-import { CommentNode, NodeTypes } from '../src/ast'
+import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 
 describe('Comment', () => {
   it('empty comment', () => {
@@ -80,5 +80,36 @@ describe('Comment', () => {
     expect(() => {
       tokenizer('<!--ast')
     }).toThrow('Compiler error')
+  })
+})
+
+describe('Element', () => {
+  it('is simple element', () => {
+    const template = `<div>Hello World</div>`
+    const ast = tokenizer(template)
+    const element = ast[0] as ElementNode
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 2,
+          content: 'Hello World',
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 17, offset: 16 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 23, offset: 22 },
+      },
+    })
   })
 })

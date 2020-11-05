@@ -13,6 +13,8 @@ export const enum ErrorCodes {
   UNEXPECTED_CHARACTER_IN_ATTRIBUTE_NAME = 'Unexpected character in attribute name',
   UNEXPECTED_EQUALS_SIGN_BEFORE_ATTRIBUTE_NAME = "Attribute name cannot start with '='",
   MISSING_ATTRIBUTE_VALUE = 'Missing attribute value',
+  INCORRECTLY_CLOSED_COMMENT = 'Incorrectly closed comment',
+  INCORRECTLY_OPENED_COMMENT = 'Incorrectly opened comment',
 }
 
 export interface CompilerError extends Error {

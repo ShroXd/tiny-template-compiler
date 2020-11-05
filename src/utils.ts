@@ -13,6 +13,7 @@ export function startsWith(source: string, matching: string): boolean {
 }
 
 export function emitError(msg: string, code: string, location: CodeLocation) {
+  // TODO 对截断编译和 warn 的错误区分开
   throw new CompilerError(msg, code, location) as CompilerError
 }
 
@@ -84,8 +85,4 @@ function mergeTextNode(prev: TemplateBaseNode, node: TemplateBaseNode) {
     // prev.content += node.content
     prev.loc.end = node.loc.end
   }
-}
-
-function prevElement<T>(arr: T[]): T | undefined {
-  return arr[arr.length - 1]
 }

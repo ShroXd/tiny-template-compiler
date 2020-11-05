@@ -5,6 +5,7 @@ import { parseText } from './parseText'
 import { ErrorCodes } from '../helpers/errors'
 import { parseElement } from './parseElement'
 import { parseTag } from './parseTag'
+import { parseInterpolation } from './parseInterpolation'
 
 type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
@@ -45,20 +46,34 @@ export function parseChildren(
   const parent = ancestors[ancestors.length - 1]
   let tokens: TemplateBaseNode[] = []
 
+  const handleComment = (stream: string): Token => {
+    let token: Token
+
+    if (isNormalComment(stream)) {
+      token = parseComment(context)
+    } else if (isBogusComment(stream)) {
+      // TODO parse bogus stream
+    } else if (isCDATA(stream)) {
+      // TODO parse cdata stream
+    } else {
+      emitError(
+        'Compiler error',
+        ErrorCodes.INCORRECTLY_CLOSED_COMMENT,
+        getCursor(context)
+      )
+    }
+
+    return token
+  }
+
   while (context.source) {
     const stream = context.source
     let token: Token
 
     if (isTagOpen(stream)) {
-      if (isComment(stream)) {
-        if (isNormalComment(stream)) {
-          token = parseComment(context)
-        } else if (isBogusComment(stream)) {
-          // TODO parse bogus comment
-        } else if (isCDATA(stream)) {
-          // TODO parse CDATA
-        }
-      } else if (isTagClosed(stream)) {
+      if (stream[1] === '!') {
+        token = handleComment(stream)
+      } else if (stream[1] === '/') {
         if (stream.length === 2 /* </ */) {
           emitError(
             'Compiler error',
@@ -71,8 +86,6 @@ export function parseChildren(
             ErrorCodes.MISSING_END_TAG_NAME,
             getCursor(context)
           )
-          advanceBy(context, 3)
-          continue
         } else if (/[a-z]/i.test(stream[2])) {
           parseTag(context, TagType.End, parent)
           continue
@@ -84,15 +97,8 @@ export function parseChildren(
           )
           // TODO parseBogusComment()
         }
-      } else if (isElement(stream)) {
+      } else if (/[a-z]/i.test(stream[1])) {
         token = parseElement(context, ancestors)
-      } else if (stream[1] === '?') {
-        emitError(
-          'Compiler error',
-          ErrorCodes.UNEXPECTED_QUESTION_MARK_INSTEAD_OF_TAG_NAME,
-          getCursor(context)
-        )
-        // TODO parseBogunComment()
       } else {
         emitError(
           'Compiler error',
@@ -101,7 +107,7 @@ export function parseChildren(
         )
       }
     } else if (isInterpolation(stream)) {
-      // TODO parse interpolation
+      token = parseInterpolation(context)
     }
 
     if (!token) {
@@ -111,35 +117,7 @@ export function parseChildren(
     saveCurrentToken(token, tokens)
   }
 
-  tokens = handleWhiteSpace(tokens)
-
   return tokens
-}
-
-function handleWhiteSpace(tokens: TemplateBaseNode[]) {
-  let needFilterWhitespace = false
-
-  tokens.forEach((val, index, arr) => {
-    if (val.type === NodeTypes.TEXT) {
-      if (hasRedundantCharacters(val.content)) {
-        val.content = val.content.replace(/[\t\r\n\f ]+/g, ' ')
-      }
-
-      const prev = arr[index - 1]
-      const next = arr[index + 1]
-
-      if (isNeedIgnoreWhitespace(prev, next, val.content)) {
-        needFilterWhitespace = true
-        arr[index] = null as any
-      } else {
-        val.content = ' '
-      }
-    }
-
-    // TODO Maybe remove comment in production
-  })
-
-  return needFilterWhitespace ? tokens.filter(Boolean) : tokens
 }
 
 function isTagOpen(stream: string): boolean {
@@ -148,10 +126,6 @@ function isTagOpen(stream: string): boolean {
 
 function isInterpolation(stream: string): boolean {
   return stream.startsWith('{{')
-}
-
-function isComment(stream: string): boolean {
-  return stream[1] === '!'
 }
 
 function isNormalComment(stream: string): boolean {
@@ -166,14 +140,6 @@ function isCDATA(stream: string): boolean {
   return stream.startsWith('![CDATA[')
 }
 
-function isTagClosed(stream: string): boolean {
-  return stream[1] === '/'
-}
-
-function isElement(stream: string): boolean {
-  return /[a-z]/i.test(stream[1])
-}
-
 function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {
   if (isArray(token)) {
     token.forEach((t) => {
@@ -182,37 +148,4 @@ function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {
   } else {
     pushNode(token, tokens)
   }
-}
-
-function hasRedundantCharacters(content: string) {
-  return /[^\t\r\n\f]/.test(content)
-}
-
-function isNeedIgnoreWhitespace(
-  prev: TemplateBaseNode,
-  next: TemplateBaseNode,
-  content: string
-) {
-  return (
-    !prev ||
-    !next ||
-    isAdjacentToComment(prev, next) ||
-    isContainsNewlineAndBetweenElements(prev, next, content)
-  )
-}
-
-function isAdjacentToComment(prev: TemplateBaseNode, next: TemplateBaseNode) {
-  return prev.type === NodeTypes.COMMENT || next.type === NodeTypes.COMMENT
-}
-
-function isContainsNewlineAndBetweenElements(
-  prev: TemplateBaseNode,
-  next: TemplateBaseNode,
-  content: string
-) {
-  return (
-    prev.type === NodeTypes.ELEMENT &&
-    next.type === NodeTypes.ELEMENT &&
-    /[\r\n]/.test(content)
-  )
 }

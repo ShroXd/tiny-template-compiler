@@ -22,7 +22,7 @@ export function parseAttributes(
   const props = []
   const attributeNames = new Set<string>()
 
-  while (isAttribuesEnd(context)) {
+  while (isAttributesEnd(context)) {
     if (context.source.startsWith('/')) {
       // 突然就结束了的 tag
       advanceBy(context, 1)
@@ -115,7 +115,7 @@ function parseAttributeValue(context: ParserContext): AttributeValue {
   return {} as AttributeValue
 }
 
-function isAttribuesEnd(context: ParserContext): boolean {
+function isAttributesEnd(context: ParserContext): boolean {
   return (
     context.source.length > 0 &&
     !context.source.startsWith('>') &&

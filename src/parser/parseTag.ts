@@ -9,10 +9,6 @@ import { parseAttributes } from './parseAttributes'
 import { ParserContext } from './parser'
 import { getNamespace } from './parserOptions'
 
-/**
- * Parse tag itself and Attributes
- * tag type means it is start tag or end tag
- */
 export function parseTag(
   context: ParserContext,
   type: TagType,
@@ -27,7 +23,8 @@ export function parseTag(
   advanceBy(context, match[0].length)
   advanceSpaces(context)
 
-  const props = parseAttributes(context, type)
+  // Handle attributes
+  const props = context.source[0] === '>' ? [] : parseAttributes(context, type)
 
   // Tag close
   let isSelfClosing = false
@@ -54,6 +51,5 @@ export function parseTag(
     isSelfClosing,
     children: [],
     loc: getSourceLocation(context, start),
-    codegenNode: undefined,
   }
 }

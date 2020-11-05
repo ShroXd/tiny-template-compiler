@@ -167,12 +167,6 @@ function checkAttributeName(
   }
 }
 
-function checkAttributeValue(context: ParserContext) {
-  let value: AttributeValue | undefined
-
-  return value
-}
-
 function isAttributeSugar(name: string): boolean {
   return /^(v-|:|@|#)/.test(name)
 }

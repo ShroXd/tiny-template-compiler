@@ -1,9 +1,10 @@
-import { NodeTypes, TemplateBaseNode, ElementNode } from './../ast'
+import { NodeTypes, TemplateBaseNode, ElementNode, TagType } from './../ast'
 import { emitError, getCursor, pushNode, advanceBy, isArray } from '../utils'
 import { parseComment } from './parseComment'
 import { parseText } from './parseText'
 import { ErrorCodes } from '../helpers/errors'
 import { parseElement } from './parseElement'
+import { parseTag } from './parseTag'
 
 type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
@@ -41,6 +42,7 @@ export function parseChildren(
   context: ParserContext,
   ancestors: ElementNode[]
 ) {
+  const parent = ancestors[ancestors.length - 1]
   let tokens: TemplateBaseNode[] = []
 
   while (context.source) {
@@ -72,7 +74,7 @@ export function parseChildren(
           advanceBy(context, 3)
           continue
         } else if (/[a-z]/i.test(stream[2])) {
-          // TODO pargeTag()
+          parseTag(context, TagType.End, parent)
           continue
         } else {
           emitError(

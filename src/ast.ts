@@ -18,9 +18,10 @@ export const enum NodeTypes {
  */
 export interface BaseElementNode extends Node {
   type: NodeTypes.ELEMENT
+  namespace: number
   tag: string
   isSelfClosing: boolean
-  props: Array<AttributeNode>
+  props: AttributeNode[]
   children: TemplateBaseNode[]
 }
 

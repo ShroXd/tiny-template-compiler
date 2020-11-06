@@ -84,7 +84,27 @@ describe('Comment', () => {
 })
 
 describe('Element', () => {
-  it('is simple element', () => {
+  it('is simple empty element', () => {
+    const template = `<div></div>`
+    const ast = tokenizer(template)
+    const element = ast[0] as ElementNode
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 12, offset: 11 },
+      },
+    })
+  })
+
+  it('is simple element with text', () => {
     const template = `<div>Hello World</div>`
     const ast = tokenizer(template)
     const element = ast[0] as ElementNode
@@ -109,6 +129,136 @@ describe('Element', () => {
       loc: {
         start: { line: 1, column: 1, offset: 0 },
         end: { line: 1, column: 23, offset: 22 },
+      },
+    })
+  })
+
+  it('is nested element', () => {
+    const template = `<div><span></span></div>`
+    const ast = tokenizer(template)
+    const element = ast[0] as ElementNode
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [],
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 25, offset: 24 },
+      },
+    })
+  })
+
+  it('is nested element with text', () => {
+    const template = `<div><span>Nice</span></div>`
+    const ast = tokenizer(template)
+    const element = ast[0] as ElementNode
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [
+            {
+              type: 2,
+              content: 'Nice',
+              loc: {
+                start: { line: 1, column: 12, offset: 11 },
+                end: { line: 1, column: 16, offset: 15 },
+              },
+            },
+          ],
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 23, offset: 22 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 29, offset: 28 },
+      },
+    })
+  })
+
+  it('is multi elements', () => {
+    const template = `<div>First</div><div>Second</div>`
+    const ast = tokenizer(template)
+    const element1 = ast[0] as ElementNode
+    const element2 = ast[1] as ElementNode
+
+    expect(ast.length).toEqual(2)
+    expect(element1).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 2,
+          content: 'First',
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 11, offset: 10 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 17, offset: 16 },
+      },
+    })
+    expect(element2).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 2,
+          content: 'Second',
+          loc: {
+            start: { line: 1, column: 22, offset: 21 },
+            end: { line: 1, column: 28, offset: 27 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 17, offset: 16 },
+        end: { line: 1, column: 34, offset: 33 },
       },
     })
   })

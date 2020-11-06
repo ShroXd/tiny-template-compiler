@@ -66,7 +66,7 @@ export function parseChildren(
     return token
   }
 
-  while (context.source) {
+  while (isTemplateEnd(context, ancestors)) {
     const stream = context.source
     let token: Token
 
@@ -118,6 +118,28 @@ export function parseChildren(
   }
 
   return tokens
+}
+
+function isTemplateEnd(
+  context: ParserContext,
+  ancestors: ElementNode[]
+): boolean {
+  if (
+    context.source.startsWith('</') &&
+    isEndTagMatching(context.source, ancestors[ancestors.length - 1].tag)
+  ) {
+    return false
+  }
+
+  return !!context.source
+}
+
+function isEndTagMatching(source: string, tag: string): boolean {
+  return (
+    source.startsWith('</') &&
+    source.substr(2, tag.length).toLowerCase() === tag.toLowerCase() &&
+    /[\t\r\n\f />]/.test(source[2 + tag.length] || '>')
+  )
 }
 
 function isTagOpen(stream: string): boolean {

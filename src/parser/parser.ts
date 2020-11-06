@@ -117,7 +117,31 @@ export function parseChildren(
     saveCurrentToken(token, tokens)
   }
 
-  return tokens
+  let needFilterWhitespace = false
+
+  tokens.forEach((val, index, arr) => {
+    // parse text will cut out redundant characters
+    if (val.type !== NodeTypes.TEXT || /[^\t\r\n\f ]/.test(val.content)) {
+      return
+    }
+    const prev = arr[index - 1]
+    const next = arr[index + 1]
+
+    if (
+      !prev ||
+      !next ||
+      prev.type === NodeTypes.COMMENT ||
+      next.type === NodeTypes.COMMENT ||
+      (prev.type === NodeTypes.ELEMENT &&
+        next.type === NodeTypes.ELEMENT &&
+        /[\r\n]/.test(val.content))
+    ) {
+      arr[index] = null
+      needFilterWhitespace = true
+    }
+  })
+
+  return needFilterWhitespace ? tokens.filter(Boolean) : tokens
 }
 
 function isTemplateEnd(

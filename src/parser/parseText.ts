@@ -1,6 +1,8 @@
 import { advanceBy, getCursor, getSourceLocation } from '../utils'
 import { NodeTypes, TextNode } from '../ast'
 
+export const enum TextType {}
+
 export function parseText(context): TextNode {
   const endTokens = ['<', '{{']
 
@@ -13,7 +15,7 @@ export function parseText(context): TextNode {
   })
 
   const start = getCursor(context)
-  const content = parseTextData(context, endIndex)
+  const content = parseTextData(context, endIndex).replace(/[\t\r\n\f ]+/g, ' ')
 
   return {
     type: NodeTypes.TEXT,

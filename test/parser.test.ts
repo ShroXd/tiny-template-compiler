@@ -65,13 +65,14 @@ describe('Comment', () => {
         <!--abc-->
         `)
     const comment = ast[0] as CommentNode
+    console.log(JSON.stringify(comment))
 
     expect(comment).toStrictEqual({
       type: NodeTypes.COMMENT,
-      content: 'abc',
+      content: ' aa a ',
       loc: {
-        start: { line: 7, column: 58, offset: 57 },
-        end: { line: 7, column: 68, offset: 67 },
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 7, column: 58, offset: 57 },
       },
     })
   })
@@ -259,6 +260,53 @@ describe('Element', () => {
       loc: {
         start: { line: 1, column: 17, offset: 16 },
         end: { line: 1, column: 34, offset: 33 },
+      },
+    })
+  })
+
+  it('handle whitespace node', () => {
+    const template = `  
+    <div>  
+    
+    <span>  
+    Nice</span> </div>`
+    const ast = tokenizer(template)
+    const element = ast[0] as ElementNode
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [
+            {
+              type: 2,
+              content: ' Nice',
+              loc: {
+                start: { line: 4, column: 31, offset: 30 },
+                end: { line: 5, column: 42, offset: 41 },
+              },
+            },
+          ],
+          loc: {
+            start: { line: 4, column: 25, offset: 24 },
+            end: { line: 5, column: 49, offset: 48 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 2, column: 8, offset: 7 },
+        end: { line: 5, column: 56, offset: 55 },
       },
     })
   })

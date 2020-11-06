@@ -68,11 +68,11 @@ describe('Comment', () => {
     console.log(JSON.stringify(comment))
 
     expect(comment).toStrictEqual({
-      type: NodeTypes.COMMENT,
-      content: ' aa a ',
+      type: 3,
+      content: 'abc',
       loc: {
-        start: { line: 1, column: 1, offset: 0 },
-        end: { line: 7, column: 58, offset: 57 },
+        start: { line: 7, column: 58, offset: 57 },
+        end: { line: 7, column: 68, offset: 67 },
       },
     })
   })

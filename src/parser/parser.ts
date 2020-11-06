@@ -121,7 +121,13 @@ export function parseChildren(
 
   tokens.forEach((val, index, arr) => {
     // parse text will cut out redundant characters
-    if (val.type !== NodeTypes.TEXT || /[^\t\r\n\f ]/.test(val.content)) {
+    // TODO 此处可能会导致注释节点前后的空节点无法被排除
+    // TODO 对 comment 节点直接跳过
+    if (
+      val.type === NodeTypes.COMMENT ||
+      val.type !== NodeTypes.TEXT ||
+      /[^\t\r\n\f ]/.test(val.content)
+    ) {
       return
     }
     const prev = arr[index - 1]

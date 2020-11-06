@@ -15,7 +15,7 @@ export function parseText(context): TextNode {
   })
 
   const start = getCursor(context)
-  const content = parseTextData(context, endIndex).replace(/[\t\r\n\f ]+/g, ' ')
+  const content = parseTextData(context, endIndex)
 
   return {
     type: NodeTypes.TEXT,

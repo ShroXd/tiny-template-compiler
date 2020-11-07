@@ -64,9 +64,17 @@ describe('Comment', () => {
         a
         <!--abc-->
         `)
-    const comment = ast[0] as CommentNode
-    console.log(JSON.stringify(comment))
+    const text = ast[0]
+    const comment = ast[1]
 
+    expect(text).toStrictEqual({
+      type: 2,
+      content: ' aa a ',
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 7, column: 58, offset: 57 },
+      },
+    })
     expect(comment).toStrictEqual({
       type: 3,
       content: 'abc',

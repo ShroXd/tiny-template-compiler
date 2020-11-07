@@ -318,4 +318,47 @@ describe('Element', () => {
       },
     })
   })
+
+  it('has extra text', () => {
+    const template = `
+    Hello World
+    <div>Hello Vue</div>
+    `
+    const ast = tokenizer(template)
+    console.log(JSON.stringify(ast))
+    const text = ast[0]
+    const element = ast[1]
+
+    expect(ast.length).toEqual(2)
+    expect(text).toStrictEqual({
+      type: 2,
+      content: ' Hello World ',
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 3, column: 22, offset: 21 },
+      },
+    })
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 2,
+          content: 'Hello Vue',
+          loc: {
+            start: { line: 3, column: 27, offset: 26 },
+            end: { line: 3, column: 36, offset: 35 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 3, column: 22, offset: 21 },
+        end: { line: 3, column: 42, offset: 41 },
+      },
+    })
+  })
 })

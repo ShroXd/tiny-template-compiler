@@ -325,7 +325,6 @@ describe('Element', () => {
     <div>Hello Vue</div>
     `
     const ast = tokenizer(template)
-    console.log(JSON.stringify(ast))
     const text = ast[0]
     const element = ast[1]
 

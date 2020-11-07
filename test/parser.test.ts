@@ -4,7 +4,7 @@ import { tokenizer } from '../src/parser/parser'
 import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 
 describe('Comment', () => {
-  it('empty comment', () => {
+  it('is empty comment', () => {
     const ast = tokenizer('<!---->')
     const comment = ast[0] as CommentNode
 
@@ -18,7 +18,7 @@ describe('Comment', () => {
     })
   })
 
-  it('simple comment', () => {
+  it('is simple comment', () => {
     const ast = tokenizer('<!--abc-->')
     const comment = ast[0] as CommentNode
 
@@ -32,7 +32,7 @@ describe('Comment', () => {
     })
   })
 
-  it('multi comment', () => {
+  it('is multi comment', () => {
     const ast = tokenizer('<!--abc--><!--def-->')
     const comment1 = ast[0] as CommentNode
     const comment2 = ast[1] as CommentNode
@@ -55,7 +55,7 @@ describe('Comment', () => {
     })
   })
 
-  it('skip witespace', () => {
+  it('can skip witespace', () => {
     const ast = tokenizer(`
                 
         
@@ -85,7 +85,7 @@ describe('Comment', () => {
     })
   })
 
-  it('not closed comment', () => {
+  it('is not closed comment', () => {
     expect(() => {
       tokenizer('<!--ast')
     }).toThrow('Compiler error')

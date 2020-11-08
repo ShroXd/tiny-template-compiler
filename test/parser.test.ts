@@ -361,3 +361,41 @@ describe('Element', () => {
     })
   })
 })
+
+describe('Interpolation', () => {
+  it('is simple variable', () => {
+    const template = `<div>{{ name }}</div>`
+    const ast = tokenizer(template)
+    const element = ast[0]
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 5,
+          content: {
+            type: 6,
+            content: 'name',
+            loc: {
+              start: { line: 1, column: 8, offset: 7 },
+              end: { line: 1, column: 14, offset: 13 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 16, offset: 15 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 22, offset: 21 },
+      },
+    })
+  })
+})

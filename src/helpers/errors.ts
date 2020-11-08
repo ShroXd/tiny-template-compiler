@@ -15,6 +15,7 @@ export const enum ErrorCodes {
   MISSING_ATTRIBUTE_VALUE = 'Missing attribute value',
   INCORRECTLY_CLOSED_COMMENT = 'Incorrectly closed comment',
   INCORRECTLY_OPENED_COMMENT = 'Incorrectly opened comment',
+  X_MISSING_INTERPOLATION_END = 'Missing interpolation end',
 }
 
 export interface CompilerError extends Error {

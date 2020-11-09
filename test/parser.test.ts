@@ -1,10 +1,9 @@
 // @ts-ignore
-
 import { tokenizer } from '../src/parser/parser'
 import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 
-describe('Comment', () => {
-  it('empty comment', () => {
+describe('Normal Comment (good running)', () => {
+  it('is empty comment', () => {
     const ast = tokenizer('<!---->')
     const comment = ast[0] as CommentNode
 
@@ -18,7 +17,7 @@ describe('Comment', () => {
     })
   })
 
-  it('simple comment', () => {
+  it('is simple comment', () => {
     const ast = tokenizer('<!--abc-->')
     const comment = ast[0] as CommentNode
 
@@ -32,7 +31,7 @@ describe('Comment', () => {
     })
   })
 
-  it('multi comment', () => {
+  it('is multi comment', () => {
     const ast = tokenizer('<!--abc--><!--def-->')
     const comment1 = ast[0] as CommentNode
     const comment2 = ast[1] as CommentNode
@@ -55,7 +54,7 @@ describe('Comment', () => {
     })
   })
 
-  it('skip witespace', () => {
+  it('can skip witespace', () => {
     const ast = tokenizer(`
                 
         
@@ -84,15 +83,36 @@ describe('Comment', () => {
       },
     })
   })
+})
 
-  it('not closed comment', () => {
+describe('Bogus Comment (good running)', () => {
+  it('is bogus comment', () => {
+    const template = `<!DOCTYPE-->`
     expect(() => {
-      tokenizer('<!--ast')
+      tokenizer(template)
+    }).not.toThrow()
+  })
+})
+
+describe('CDATA (good running)', () => {
+  it('is CDATA', () => {
+    const template = `<![CDATA[`
+    expect(() => {
+      tokenizer(template)
+    }).not.toThrow()
+  })
+})
+
+describe('Comment (error)', () => {
+  it('is incorrectly closed comment', () => {
+    const template = `<!-nothing`
+    expect(() => {
+      tokenizer(template)
     }).toThrow('Compiler error')
   })
 })
 
-describe('Element', () => {
+describe('Element (good running)', () => {
   it('is simple empty element', () => {
     const template = `<div></div>`
     const ast = tokenizer(template)
@@ -272,6 +292,53 @@ describe('Element', () => {
     })
   })
 
+  it('is nested multi elements', () => {
+    const template = `<div><span></span><span></span></div>`
+    const ast = tokenizer(template)
+    const element = ast[0]
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [],
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [],
+          loc: {
+            start: { line: 1, column: 19, offset: 18 },
+            end: { line: 1, column: 32, offset: 31 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 38, offset: 37 },
+      },
+    })
+  })
+
   it('handle whitespace node', () => {
     const template = `  
     <div>  
@@ -325,7 +392,6 @@ describe('Element', () => {
     <div>Hello Vue</div>
     `
     const ast = tokenizer(template)
-    console.log(JSON.stringify(ast))
     const text = ast[0]
     const element = ast[1]
 
@@ -360,5 +426,251 @@ describe('Element', () => {
         end: { line: 3, column: 42, offset: 41 },
       },
     })
+  })
+})
+
+describe('Element (error)', () => {
+  it('is EOF before tag name', () => {
+    const template = `</`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error') // TODO 增加 text mode
+  })
+
+  it('is missing end tag name', () => {
+    const template = `</>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error')
+  })
+
+  it('is invalid first character of tag name', () => {
+    const template = `<//>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error')
+  })
+
+  it('is end tag first', () => {
+    const template = `</div>`
+    const ast = tokenizer(template)
+
+    expect(ast.length).toEqual(0)
+  })
+})
+
+describe('Interpolation (good running)', () => {
+  it('is simple variable', () => {
+    const template = `<div>{{ name }}</div>`
+    const ast = tokenizer(template)
+    const element = ast[0]
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 5,
+          content: {
+            type: 6,
+            content: 'name',
+            loc: {
+              start: { line: 1, column: 8, offset: 7 },
+              end: { line: 1, column: 14, offset: 13 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 16, offset: 15 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 22, offset: 21 },
+      },
+    })
+  })
+})
+
+describe('Attributes (good running)', () => {
+  it('is simple single attribute', () => {
+    const template = `<div class="title"></div>`
+    const ast = tokenizer(template)
+    const attr = ast[0]
+
+    expect(attr).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'class',
+          value: {
+            type: 2,
+            content: 'title',
+            loc: {
+              start: { line: 1, column: 12, offset: 11 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 26, offset: 25 },
+      },
+    })
+  })
+
+  it('is multi attributes', () => {
+    const template = `<div class="title" align="center"></div>`
+    const ast = tokenizer(template)
+    const attr = ast[0]
+
+    expect(attr).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'class',
+          value: {
+            type: 2,
+            content: 'title',
+            loc: {
+              start: { line: 1, column: 12, offset: 11 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+        {
+          type: 4,
+          name: 'align',
+          value: {
+            type: 2,
+            content: 'center',
+            loc: {
+              start: { line: 1, column: 26, offset: 25 },
+              end: { line: 1, column: 34, offset: 33 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 20, offset: 19 },
+            end: { line: 1, column: 34, offset: 33 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 41, offset: 40 },
+      },
+    })
+  })
+
+  it('is attributes without quoted', () => {
+    const template = `<div v-if="isShow"></div><div v-else></div>`
+    const ast = tokenizer(template)
+    const element1 = ast[0]
+    const element2 = ast[1]
+
+    // TODO v-if v-else 需要特殊处理，增加类型
+    expect(ast.length).toEqual(2)
+    expect(element1).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'v-if',
+          value: {
+            type: 2,
+            content: 'isShow',
+            loc: {
+              start: { line: 1, column: 11, offset: 10 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 26, offset: 25 },
+      },
+    })
+    expect(element2).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'v-else',
+          value: undefined,
+          loc: {
+            start: { line: 1, column: 31, offset: 30 },
+            end: { line: 1, column: 37, offset: 36 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 26, offset: 25 },
+        end: { line: 1, column: 44, offset: 43 },
+      },
+    })
+  })
+})
+
+describe('Attributes (error)', () => {
+  it('is duplicate attribute name', () => {
+    const template = `<div class="c1" class="c2"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
+  })
+
+  it('is unexpected character in attribute name', () => {
+    const template = `<div cla"ss="c1"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
+  })
+
+  it('is unexpected equals sign before attribute name', () => {
+    const template = `<div =class="c1"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
   })
 })

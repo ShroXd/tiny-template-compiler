@@ -56,10 +56,10 @@ function parseAttribute(
   context: ParserContext,
   attributeNames: Set<string>
 ): AttributeNode {
+  const start = getCursor(context)
   const name = parseAttributeName(context, attributeNames)
 
   // Parse value
-  const start = getCursor(context)
   let value: AttributeValue | undefined
 
   if (/^[\t\r\n\f ]*=/.test(context.source)) {
@@ -111,8 +111,31 @@ function parseAttributeName(
   return name
 }
 
-function parseAttributeValue(context: ParserContext): AttributeValue {
-  return {} as AttributeValue
+function parseAttributeValue(
+  context: ParserContext
+): AttributeValue | undefined {
+  const start = getCursor(context)
+  let content: string
+
+  const quote = context.source[0]
+  const isQuoted = quote === `"` || quote === `'`
+
+  if (isQuoted) {
+    advanceBy(context, quote.length)
+
+    const endIndex = context.source.indexOf(quote)
+    content = context.source.slice(0, endIndex)
+
+    advanceBy(context, content.length + quote.length)
+  } else {
+    return undefined
+  }
+
+  return {
+    content,
+    isQuoted,
+    loc: getSourceLocation(context, start),
+  }
 }
 
 function isAttributesEnd(context: ParserContext): boolean {

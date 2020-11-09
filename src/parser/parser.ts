@@ -9,6 +9,8 @@ import { parseInterpolation } from './parseInterpolation'
 
 type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
+export const enum TextModes {}
+
 export interface ParserContext {
   source: string
   readonly originalSource: string
@@ -44,7 +46,7 @@ export function parseChildren(
   ancestors: ElementNode[]
 ) {
   const parent = ancestors[ancestors.length - 1]
-  let tokens: TemplateBaseNode[] = []
+  const tokens: TemplateBaseNode[] = []
 
   const handleComment = (stream: string): Token => {
     let token: Token
@@ -155,6 +157,7 @@ function isTemplateEnd(
   ancestors: ElementNode[]
 ): boolean {
   if (
+    ancestors.length !== 0 &&
     context.source.startsWith('</') &&
     isEndTagMatching(context.source, ancestors[ancestors.length - 1].tag)
   ) {
@@ -189,7 +192,7 @@ function isBogusComment(stream: string): boolean {
 }
 
 function isCDATA(stream: string): boolean {
-  return stream.startsWith('![CDATA[')
+  return stream.startsWith('<![CDATA[')
 }
 
 function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {

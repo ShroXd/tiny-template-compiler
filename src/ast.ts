@@ -11,6 +11,13 @@ export const enum NodeTypes {
   TEXT,
   COMMENT,
   ATTRIBUTE,
+  INTERPOLATION,
+  SIMPLE_EXPRESSION,
+}
+
+export interface SimpleExpressionNode extends Node {
+  type: NodeTypes.SIMPLE_EXPRESSION
+  content: string
 }
 
 /**
@@ -63,7 +70,16 @@ export interface AttributeNode extends Node {
   value: TextNode | undefined
 }
 
-export type TemplateBaseNode = CommentNode | TextNode | ElementNode
+export interface InterpolationNode extends Node {
+  type: NodeTypes.INTERPOLATION
+  content: SimpleExpressionNode
+}
+
+export type TemplateBaseNode =
+  | CommentNode
+  | TextNode
+  | ElementNode
+  | InterpolationNode
 
 /*
  * Pattern

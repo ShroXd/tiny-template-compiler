@@ -7,7 +7,7 @@ describe('matchStack', () => {
     expect(stack.raw()).toEqual(true)
   })
 
-  // it('is wrong type', () => {
+  // it ('is wrong type', () => {
   //   const comment = {
   //     type: NodeTypes.COMMENT,
   //     content: '',
@@ -19,7 +19,7 @@ describe('matchStack', () => {
   //   expect(stack.raw()).toEqual(true)
   // })
 
-  // it('is match', () => {
+  // it ('is match', () => {
   //   const div = {
   //     type: NodeTypes.ELEMENT,
   //     content: '',
@@ -32,7 +32,7 @@ describe('matchStack', () => {
   //   expect(stack.raw()).toEqual(true)
   // })
 
-  // it('is not match', () => {
+  // it ('is not match', () => {
   //   const div = {
   //     type: NodeTypes.ELEMENT,
   //     content: '',

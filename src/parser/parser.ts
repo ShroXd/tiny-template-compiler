@@ -46,7 +46,7 @@ export function parseChildren(
   ancestors: ElementNode[]
 ) {
   const parent = ancestors[ancestors.length - 1]
-  let tokens: TemplateBaseNode[] = []
+  const tokens: TemplateBaseNode[] = []
 
   const handleComment = (stream: string): Token => {
     let token: Token

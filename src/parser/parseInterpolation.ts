@@ -32,7 +32,7 @@ export function parseInterpolation(context: ParserContext): InterpolationNode {
     type: NodeTypes.INTERPOLATION,
     content: {
       type: NodeTypes.SIMPLE_EXPRESSION,
-      content: content,
+      content,
       loc: getSourceLocation(context, innerStart, innerEnd),
     },
     loc: getSourceLocation(context, sourceStart, sourceEnd),

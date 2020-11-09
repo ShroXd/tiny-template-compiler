@@ -498,7 +498,7 @@ describe('Interpolation (good running)', () => {
   })
 })
 
-describe('Attributes', () => {
+describe('Attributes (good running)', () => {
   it('is simple single attribute', () => {
     const template = `<div class="title"></div>`
     const ast = tokenizer(template)
@@ -587,5 +587,91 @@ describe('Attributes', () => {
         end: { line: 1, column: 41, offset: 40 },
       },
     })
+  })
+
+  it('is attributes without quoted', () => {
+    const template = `<div v-if="isShow"></div><div v-else></div>`
+    const ast = tokenizer(template)
+    const element1 = ast[0]
+    const element2 = ast[1]
+
+    // TODO v-if v-else 需要特殊处理，增加类型
+    expect(ast.length).toEqual(2)
+    expect(element1).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'v-if',
+          value: {
+            type: 2,
+            content: 'isShow',
+            loc: {
+              start: { line: 1, column: 11, offset: 10 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 26, offset: 25 },
+      },
+    })
+    expect(element2).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'v-else',
+          value: undefined,
+          loc: {
+            start: { line: 1, column: 31, offset: 30 },
+            end: { line: 1, column: 37, offset: 36 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 26, offset: 25 },
+        end: { line: 1, column: 44, offset: 43 },
+      },
+    })
+  })
+})
+
+describe('Attributes (error)', () => {
+  it('is duplicate attribute name', () => {
+    const template = `<div class="c1" class="c2"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
+  })
+
+  it('is unexpected character in attribute name', () => {
+    const template = `<div cla"ss="c1"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
+  })
+
+  it('is unexpected equals sign before attribute name', () => {
+    const template = `<div =class="c1"></div>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow()
   })
 })

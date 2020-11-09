@@ -111,7 +111,9 @@ function parseAttributeName(
   return name
 }
 
-function parseAttributeValue(context: ParserContext): AttributeValue {
+function parseAttributeValue(
+  context: ParserContext
+): AttributeValue | undefined {
   const start = getCursor(context)
   let content: string
 
@@ -126,6 +128,7 @@ function parseAttributeValue(context: ParserContext): AttributeValue {
 
     advanceBy(context, content.length + quote.length)
   } else {
+    return undefined
   }
 
   return {

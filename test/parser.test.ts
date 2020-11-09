@@ -3,7 +3,7 @@
 import { tokenizer } from '../src/parser/parser'
 import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 
-describe('Comment', () => {
+describe('Normal Comment (good running)', () => {
   it('is empty comment', () => {
     const ast = tokenizer('<!---->')
     const comment = ast[0] as CommentNode
@@ -84,15 +84,36 @@ describe('Comment', () => {
       },
     })
   })
+})
 
-  it('is not closed comment', () => {
+describe('Bogus Comment (good running)', () => {
+  it('is bogus comment', () => {
+    const template = `<!DOCTYPE-->`
     expect(() => {
-      tokenizer('<!--ast')
+      tokenizer(template)
+    }).not.toThrow()
+  })
+})
+
+describe('CDATA (good running)', () => {
+  it('is CDATA', () => {
+    const template = `<![CDATA[`
+    expect(() => {
+      tokenizer(template)
+    }).not.toThrow()
+  })
+})
+
+describe('Comment (error)', () => {
+  it('is incorrectly closed comment', () => {
+    const template = `<!-nothing`
+    expect(() => {
+      tokenizer(template)
     }).toThrow('Compiler error')
   })
 })
 
-describe('Element', () => {
+describe('Element (good running)', () => {
   it('is simple empty element', () => {
     const template = `<div></div>`
     const ast = tokenizer(template)
@@ -272,6 +293,53 @@ describe('Element', () => {
     })
   })
 
+  it('is nested multi elements', () => {
+    const template = `<div><span></span><span></span></div>`
+    const ast = tokenizer(template)
+    const element = ast[0]
+
+    expect(element).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [],
+      isSelfClosing: false,
+      children: [
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [],
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+        {
+          type: 1,
+          namespace: 0,
+          tag: 'span',
+          tagType: 3,
+          props: [],
+          isSelfClosing: false,
+          children: [],
+          loc: {
+            start: { line: 1, column: 19, offset: 18 },
+            end: { line: 1, column: 32, offset: 31 },
+          },
+        },
+      ],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 38, offset: 37 },
+      },
+    })
+  })
+
   it('handle whitespace node', () => {
     const template = `  
     <div>  
@@ -362,7 +430,36 @@ describe('Element', () => {
   })
 })
 
-describe('Interpolation', () => {
+describe('Element (error)', () => {
+  it('is EOF before tag name', () => {
+    const template = `</`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error') // TODO 增加 text mode
+  })
+
+  it('is missing end tag name', () => {
+    const template = `</>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error')
+  })
+
+  it('is invalid first character of tag name', () => {
+    const template = `<//>`
+    expect(() => {
+      tokenizer(template)
+    }).toThrow('Compiler error')
+  })
+
+  it('is end tag first', () => {
+    const template = `</div>`
+    const ast = tokenizer(template)
+
+    expect(ast.length).toEqual(0)
+  })
+})
+describe('Interpolation (good running)', () => {
   it('is simple variable', () => {
     const template = `<div>{{ name }}</div>`
     const ast = tokenizer(template)

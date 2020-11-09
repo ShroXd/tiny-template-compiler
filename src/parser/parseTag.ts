@@ -26,7 +26,7 @@ export function parseTag(
   // Handle attributes
   const props = context.source[0] === '>' ? [] : parseAttributes(context, type)
 
-  // Tag close
+  // Close start tag
   let isSelfClosing = false
   if (context.source.length !== 0) {
     isSelfClosing = context.source.startsWith('/>')

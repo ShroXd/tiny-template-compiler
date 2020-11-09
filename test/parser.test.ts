@@ -459,6 +459,7 @@ describe('Element (error)', () => {
     expect(ast.length).toEqual(0)
   })
 })
+
 describe('Interpolation (good running)', () => {
   it('is simple variable', () => {
     const template = `<div>{{ name }}</div>`
@@ -492,6 +493,98 @@ describe('Interpolation (good running)', () => {
       loc: {
         start: { line: 1, column: 1, offset: 0 },
         end: { line: 1, column: 22, offset: 21 },
+      },
+    })
+  })
+})
+
+describe('Attributes', () => {
+  it('is simple single attribute', () => {
+    const template = `<div class="title"></div>`
+    const ast = tokenizer(template)
+    const attr = ast[0]
+
+    expect(attr).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'class',
+          value: {
+            type: 2,
+            content: 'title',
+            loc: {
+              start: { line: 1, column: 12, offset: 11 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 26, offset: 25 },
+      },
+    })
+  })
+
+  it('is multi attributes', () => {
+    const template = `<div class="title" align="center"></div>`
+    const ast = tokenizer(template)
+    const attr = ast[0]
+
+    expect(attr).toStrictEqual({
+      type: 1,
+      namespace: 0,
+      tag: 'div',
+      tagType: 3,
+      props: [
+        {
+          type: 4,
+          name: 'class',
+          value: {
+            type: 2,
+            content: 'title',
+            loc: {
+              start: { line: 1, column: 12, offset: 11 },
+              end: { line: 1, column: 19, offset: 18 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 6, offset: 5 },
+            end: { line: 1, column: 19, offset: 18 },
+          },
+        },
+        {
+          type: 4,
+          name: 'align',
+          value: {
+            type: 2,
+            content: 'center',
+            loc: {
+              start: { line: 1, column: 26, offset: 25 },
+              end: { line: 1, column: 34, offset: 33 },
+            },
+          },
+          loc: {
+            start: { line: 1, column: 20, offset: 19 },
+            end: { line: 1, column: 34, offset: 33 },
+          },
+        },
+      ],
+      isSelfClosing: false,
+      children: [],
+      loc: {
+        start: { line: 1, column: 1, offset: 0 },
+        end: { line: 1, column: 41, offset: 40 },
       },
     })
   })

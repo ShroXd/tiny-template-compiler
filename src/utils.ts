@@ -8,10 +8,6 @@ export interface CodeLocation {
   offset: number
 }
 
-export function startsWith(source: string, matching: string): boolean {
-  return source.startsWith(matching)
-}
-
 export function emitError(msg: string, code: string, location: CodeLocation) {
   // TODO 对截断编译和 warn 的错误区分开
   throw new CompilerError(msg, code, location) as CompilerError
@@ -74,15 +70,4 @@ function advancePosition(
       : numberOfCharacters - lastLineColumn
 
   return context
-}
-
-function mergeTextNode(prev: TemplateBaseNode, node: TemplateBaseNode) {
-  if (
-    prev &&
-    prev.type === NodeTypes.TEXT &&
-    prev.loc.end.offset === node.loc.start.offset
-  ) {
-    // prev.content += node.content
-    prev.loc.end = node.loc.end
-  }
 }

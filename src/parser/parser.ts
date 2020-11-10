@@ -1,5 +1,19 @@
-import { NodeTypes, TemplateBaseNode, ElementNode, TagType } from './../ast'
-import { emitError, getCursor, pushNode, advanceBy, isArray } from '../utils'
+import {
+  NodeTypes,
+  TemplateBaseNode,
+  ElementNode,
+  TagType,
+  SourceLocation,
+  RootNode,
+} from './../ast'
+import {
+  emitError,
+  getCursor,
+  pushNode,
+  advanceBy,
+  isArray,
+  getSourceLocation,
+} from '../utils'
 import { parseComment } from './parseComment'
 import { parseText } from './parseText'
 import { ErrorCodes } from '../helpers/errors'
@@ -20,25 +34,13 @@ export interface ParserContext {
   options: any
 }
 
-export function parser(content: string, options = {}) {
-  tokenizer(content, options)
-  // TODO generate AST
-}
-
 export function tokenizer(content: string, options = {}) {
   const context = createTokenizerContext(content, options)
-  return parseChildren(context, [])
-}
-
-function createTokenizerContext(content: string, options = {}): ParserContext {
-  return {
-    source: content,
-    originalSource: content,
-    line: 1,
-    column: 1,
-    offset: 0,
-    options,
-  }
+  const start = getCursor(context)
+  return createRoot(
+    parseChildren(context, []),
+    getSourceLocation(context, start)
+  )
 }
 
 export function parseChildren(
@@ -150,6 +152,30 @@ export function parseChildren(
   })
 
   return needFilterWhitespace ? tokens.filter(Boolean) : tokens
+}
+
+const locStub: SourceLocation = {
+  start: { line: 1, column: 1, offset: 0 },
+  end: { line: 1, column: 1, offset: 0 },
+}
+
+function createRoot(children: TemplateBaseNode[], loc = locStub): RootNode {
+  return {
+    type: NodeTypes.ROOT,
+    children,
+    loc,
+  }
+}
+
+function createTokenizerContext(content: string, options = {}): ParserContext {
+  return {
+    source: content,
+    originalSource: content,
+    line: 1,
+    column: 1,
+    offset: 0,
+    options,
+  }
 }
 
 function isTemplateEnd(

@@ -46,6 +46,7 @@ export function getSourceLocation(context, start, end?): SourceLocation {
   }
 }
 
+export const isString = (val: unknown): val is string => typeof val === 'string'
 export const isArray = Array.isArray
 
 function advancePosition(

@@ -6,8 +6,7 @@ import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 describe('Normal Comment (good running)', () => {
   it('is empty comment', () => {
     const ast = tokenizer('<!---->')
-    const comment = ast[0] as CommentNode
-
+    const comment = ast.children[0] as CommentNode
     expect(comment).toStrictEqual({
       type: NodeTypes.COMMENT,
       content: '',
@@ -20,7 +19,7 @@ describe('Normal Comment (good running)', () => {
 
   it('is simple comment', () => {
     const ast = tokenizer('<!--abc-->')
-    const comment = ast[0] as CommentNode
+    const comment = ast.children[0] as CommentNode
 
     expect(comment).toStrictEqual({
       type: NodeTypes.COMMENT,
@@ -34,8 +33,8 @@ describe('Normal Comment (good running)', () => {
 
   it('is multi comment', () => {
     const ast = tokenizer('<!--abc--><!--def-->')
-    const comment1 = ast[0] as CommentNode
-    const comment2 = ast[1] as CommentNode
+    const comment1 = ast.children[0] as CommentNode
+    const comment2 = ast.children[1] as CommentNode
 
     expect(comment1).toStrictEqual({
       type: NodeTypes.COMMENT,
@@ -55,7 +54,7 @@ describe('Normal Comment (good running)', () => {
     })
   })
 
-  it('can skip witespace', () => {
+  it('can skip whitespace', () => {
     const ast = tokenizer(`
                 
         
@@ -64,8 +63,8 @@ describe('Normal Comment (good running)', () => {
         a
         <!--abc-->
         `)
-    const text = ast[0]
-    const comment = ast[1]
+    const text = ast.children[0]
+    const comment = ast.children[1]
 
     expect(text).toStrictEqual({
       type: 2,
@@ -117,7 +116,7 @@ describe('Element (good running)', () => {
   it('is simple empty element', () => {
     const template = `<div></div>`
     const ast = tokenizer(template)
-    const element = ast[0] as ElementNode
+    const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
       type: 1,
@@ -137,7 +136,7 @@ describe('Element (good running)', () => {
   it('is simple element with text', () => {
     const template = `<div>Hello World</div>`
     const ast = tokenizer(template)
-    const element = ast[0] as ElementNode
+    const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
       type: 1,
@@ -166,7 +165,7 @@ describe('Element (good running)', () => {
   it('is nested element', () => {
     const template = `<div><span></span></div>`
     const ast = tokenizer(template)
-    const element = ast[0] as ElementNode
+    const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
       type: 1,
@@ -200,7 +199,7 @@ describe('Element (good running)', () => {
   it('is nested element with text', () => {
     const template = `<div><span>Nice</span></div>`
     const ast = tokenizer(template)
-    const element = ast[0] as ElementNode
+    const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
       type: 1,
@@ -243,10 +242,10 @@ describe('Element (good running)', () => {
   it('is multi elements', () => {
     const template = `<div>First</div><div>Second</div>`
     const ast = tokenizer(template)
-    const element1 = ast[0] as ElementNode
-    const element2 = ast[1] as ElementNode
+    const element1 = ast.children[0] as ElementNode
+    const element2 = ast.children[1] as ElementNode
 
-    expect(ast.length).toEqual(2)
+    expect(ast.children.length).toEqual(2)
     expect(element1).toStrictEqual({
       type: 1,
       namespace: 0,
@@ -296,7 +295,7 @@ describe('Element (good running)', () => {
   it('is nested multi elements', () => {
     const template = `<div><span></span><span></span></div>`
     const ast = tokenizer(template)
-    const element = ast[0]
+    const element = ast.children[0]
 
     expect(element).toStrictEqual({
       type: 1,
@@ -347,7 +346,7 @@ describe('Element (good running)', () => {
     <span>  
     Nice</span> </div>`
     const ast = tokenizer(template)
-    const element = ast[0] as ElementNode
+    const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
       type: 1,
@@ -393,10 +392,10 @@ describe('Element (good running)', () => {
     <div>Hello Vue</div>
     `
     const ast = tokenizer(template)
-    const text = ast[0]
-    const element = ast[1]
+    const text = ast.children[0]
+    const element = ast.children[1]
 
-    expect(ast.length).toEqual(2)
+    expect(ast.children.length).toEqual(2)
     expect(text).toStrictEqual({
       type: 2,
       content: ' Hello World ',
@@ -456,7 +455,7 @@ describe('Element (error)', () => {
     const template = `</div>`
     const ast = tokenizer(template)
 
-    expect(ast.length).toEqual(0)
+    expect(ast.children.length).toEqual(0)
   })
 })
 
@@ -464,7 +463,7 @@ describe('Interpolation (good running)', () => {
   it('is simple variable', () => {
     const template = `<div>{{ name }}</div>`
     const ast = tokenizer(template)
-    const element = ast[0]
+    const element = ast.children[0]
 
     expect(element).toStrictEqual({
       type: 1,
@@ -502,7 +501,7 @@ describe('Attributes (good running)', () => {
   it('is simple single attribute', () => {
     const template = `<div class="title"></div>`
     const ast = tokenizer(template)
-    const attr = ast[0]
+    const attr = ast.children[0]
 
     expect(attr).toStrictEqual({
       type: 1,
@@ -539,7 +538,7 @@ describe('Attributes (good running)', () => {
   it('is multi attributes', () => {
     const template = `<div class="title" align="center"></div>`
     const ast = tokenizer(template)
-    const attr = ast[0]
+    const attr = ast.children[0]
 
     expect(attr).toStrictEqual({
       type: 1,
@@ -592,11 +591,11 @@ describe('Attributes (good running)', () => {
   it('is attributes without quoted', () => {
     const template = `<div v-if="isShow"></div><div v-else></div>`
     const ast = tokenizer(template)
-    const element1 = ast[0]
-    const element2 = ast[1]
+    const element1 = ast.children[0]
+    const element2 = ast.children[1]
 
     // TODO v-if v-else 需要特殊处理，增加类型
-    expect(ast.length).toEqual(2)
+    expect(ast.children.length).toEqual(2)
     expect(element1).toStrictEqual({
       type: 1,
       namespace: 0,

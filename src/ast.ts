@@ -54,6 +54,11 @@ export interface Node {
   loc: SourceLocation
 }
 
+export interface RootNode extends Node {
+  type: NodeTypes.ROOT
+  children: TemplateBaseNode[]
+}
+
 export interface CommentNode extends Node {
   type: NodeTypes.COMMENT
   content: string
@@ -97,6 +102,7 @@ export interface Position {
   offset: number
 }
 
+// TODO add source code
 export interface SourceLocation {
   start: Position
   end: Position

@@ -1,11 +1,11 @@
 // @ts-ignore
 
-import { tokenizer } from '../src/parser/parser'
+import { parser } from '../src/parser/parser'
 import { CommentNode, ElementNode, NodeTypes } from '../src/ast'
 
 describe('Normal Comment (good running)', () => {
   it('is empty comment', () => {
-    const ast = tokenizer('<!---->')
+    const ast = parser('<!---->')
     const comment = ast.children[0] as CommentNode
     expect(comment).toStrictEqual({
       type: NodeTypes.COMMENT,
@@ -18,7 +18,7 @@ describe('Normal Comment (good running)', () => {
   })
 
   it('is simple comment', () => {
-    const ast = tokenizer('<!--abc-->')
+    const ast = parser('<!--abc-->')
     const comment = ast.children[0] as CommentNode
 
     expect(comment).toStrictEqual({
@@ -32,7 +32,7 @@ describe('Normal Comment (good running)', () => {
   })
 
   it('is multi comment', () => {
-    const ast = tokenizer('<!--abc--><!--def-->')
+    const ast = parser('<!--abc--><!--def-->')
     const comment1 = ast.children[0] as CommentNode
     const comment2 = ast.children[1] as CommentNode
 
@@ -55,7 +55,7 @@ describe('Normal Comment (good running)', () => {
   })
 
   it('can skip whitespace', () => {
-    const ast = tokenizer(`
+    const ast = parser(`
                 
         
         aa
@@ -89,7 +89,7 @@ describe('Bogus Comment (good running)', () => {
   it('is bogus comment', () => {
     const template = `<!DOCTYPE-->`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).not.toThrow()
   })
 })
@@ -98,7 +98,7 @@ describe('CDATA (good running)', () => {
   it('is CDATA', () => {
     const template = `<![CDATA[`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).not.toThrow()
   })
 })
@@ -107,7 +107,7 @@ describe('Comment (error)', () => {
   it('is incorrectly closed comment', () => {
     const template = `<!-nothing`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow('Compiler error')
   })
 })
@@ -115,7 +115,7 @@ describe('Comment (error)', () => {
 describe('Element (good running)', () => {
   it('is simple empty element', () => {
     const template = `<div></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
@@ -135,7 +135,7 @@ describe('Element (good running)', () => {
 
   it('is simple element with text', () => {
     const template = `<div>Hello World</div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
@@ -164,7 +164,7 @@ describe('Element (good running)', () => {
 
   it('is nested element', () => {
     const template = `<div><span></span></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
@@ -198,7 +198,7 @@ describe('Element (good running)', () => {
 
   it('is nested element with text', () => {
     const template = `<div><span>Nice</span></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
@@ -241,7 +241,7 @@ describe('Element (good running)', () => {
 
   it('is multi elements', () => {
     const template = `<div>First</div><div>Second</div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element1 = ast.children[0] as ElementNode
     const element2 = ast.children[1] as ElementNode
 
@@ -294,7 +294,7 @@ describe('Element (good running)', () => {
 
   it('is nested multi elements', () => {
     const template = `<div><span></span><span></span></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0]
 
     expect(element).toStrictEqual({
@@ -345,7 +345,7 @@ describe('Element (good running)', () => {
     
     <span>  
     Nice</span> </div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0] as ElementNode
 
     expect(element).toStrictEqual({
@@ -391,7 +391,7 @@ describe('Element (good running)', () => {
     Hello World
     <div>Hello Vue</div>
     `
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const text = ast.children[0]
     const element = ast.children[1]
 
@@ -433,27 +433,27 @@ describe('Element (error)', () => {
   it('is EOF before tag name', () => {
     const template = `</`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow('Compiler error') // TODO 增加 text mode
   })
 
   it('is missing end tag name', () => {
     const template = `</>`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow('Compiler error')
   })
 
   it('is invalid first character of tag name', () => {
     const template = `<//>`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow('Compiler error')
   })
 
   it('is end tag first', () => {
     const template = `</div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
 
     expect(ast.children.length).toEqual(0)
   })
@@ -462,7 +462,7 @@ describe('Element (error)', () => {
 describe('Interpolation (good running)', () => {
   it('is simple variable', () => {
     const template = `<div>{{ name }}</div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element = ast.children[0]
 
     expect(element).toStrictEqual({
@@ -500,7 +500,7 @@ describe('Interpolation (good running)', () => {
 describe('Attributes (good running)', () => {
   it('is simple single attribute', () => {
     const template = `<div class="title"></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const attr = ast.children[0]
 
     expect(attr).toStrictEqual({
@@ -537,7 +537,7 @@ describe('Attributes (good running)', () => {
 
   it('is multi attributes', () => {
     const template = `<div class="title" align="center"></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const attr = ast.children[0]
 
     expect(attr).toStrictEqual({
@@ -590,7 +590,7 @@ describe('Attributes (good running)', () => {
 
   it('is attributes without quoted', () => {
     const template = `<div v-if="isShow"></div><div v-else></div>`
-    const ast = tokenizer(template)
+    const ast = parser(template)
     const element1 = ast.children[0]
     const element2 = ast.children[1]
 
@@ -656,21 +656,21 @@ describe('Attributes (error)', () => {
   it('is duplicate attribute name', () => {
     const template = `<div class="c1" class="c2"></div>`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow()
   })
 
   it('is unexpected character in attribute name', () => {
     const template = `<div cla"ss="c1"></div>`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow()
   })
 
   it('is unexpected equals sign before attribute name', () => {
     const template = `<div =class="c1"></div>`
     expect(() => {
-      tokenizer(template)
+      parser(template)
     }).toThrow()
   })
 })

@@ -10,7 +10,6 @@ import {
   emitError,
   getCursor,
   pushNode,
-  advanceBy,
   isArray,
   getSourceLocation,
 } from '../utils'
@@ -20,22 +19,14 @@ import { ErrorCodes } from '../helpers/errors'
 import { parseElement } from './parseElement'
 import { parseTag } from './parseTag'
 import { parseInterpolation } from './parseInterpolation'
+import { createParserContext, ParserContext } from './parserContext'
 
 type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
 
 export const enum TextModes {}
 
-export interface ParserContext {
-  source: string
-  readonly originalSource: string
-  line: number
-  column: number
-  offset: number
-  options: any
-}
-
-export function tokenizer(content: string, options = {}) {
-  const context = createTokenizerContext(content, options)
+export function parser(content: string, options = {}) {
+  const context = createParserContext(content, options)
   const start = getCursor(context)
   return createRoot(
     parseChildren(context, []),
@@ -164,17 +155,6 @@ function createRoot(children: TemplateBaseNode[], loc = locStub): RootNode {
     type: NodeTypes.ROOT,
     children,
     loc,
-  }
-}
-
-function createTokenizerContext(content: string, options = {}): ParserContext {
-  return {
-    source: content,
-    originalSource: content,
-    line: 1,
-    column: 1,
-    offset: 0,
-    options,
   }
 }
 

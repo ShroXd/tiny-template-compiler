@@ -86,6 +86,9 @@ export type TemplateBaseNode =
   | ElementNode
   | InterpolationNode
 
+// TODO add if for
+export type ParentNode = RootNode | ElementNode
+
 /*
  * Pattern
  */

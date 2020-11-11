@@ -3,6 +3,7 @@ import { NodeTypes, TextNode } from '../ast'
 
 export const enum TextType {}
 
+// TODO 合并相邻文本节点
 export function parseText(context): TextNode {
   const endTokens = ['<', '{{']
 

@@ -1,12 +1,14 @@
-import { ParserContext } from './parser/parser'
 import { NodeTypes, SourceLocation, TemplateBaseNode } from './ast'
 import { CompilerError } from './helpers/errors'
+import { ParserContext } from './parser/parserContext'
 
 export interface CodeLocation {
   line: number
   column: number
   offset: number
 }
+
+// TODO 总结常用的导出方法  例如 object.assign 导出为 extend 来使用
 
 export function emitError(msg: string, code: string, location: CodeLocation) {
   // TODO 对截断编译和 warn 的错误区分开
@@ -48,6 +50,7 @@ export function getSourceLocation(context, start, end?): SourceLocation {
 
 export const isString = (val: unknown): val is string => typeof val === 'string'
 export const isArray = Array.isArray
+export const extend = Object.assign
 
 function advancePosition(
   context: ParserContext,

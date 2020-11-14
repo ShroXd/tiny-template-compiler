@@ -6,7 +6,7 @@ import {
 } from '../utils'
 import { ElementNode, ElementTypes, NodeTypes, TagType } from './../ast'
 import { parseAttributes } from './parseAttributes'
-import { ParserContext } from './parser'
+import { ParserContext } from './parserContext'
 import { getNamespace } from './parserOptions'
 
 export function parseTag(

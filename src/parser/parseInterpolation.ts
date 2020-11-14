@@ -1,7 +1,7 @@
 import { InterpolationNode, NodeTypes } from '../ast'
 import { ErrorCodes } from '../helpers/errors'
 import { advanceBy, emitError, getCursor, getSourceLocation } from '../utils'
-import { ParserContext } from './parser'
+import { ParserContext } from './parserContext'
 
 export function parseInterpolation(context: ParserContext): InterpolationNode {
   const left = '{{'
@@ -36,5 +36,5 @@ export function parseInterpolation(context: ParserContext): InterpolationNode {
       loc: getSourceLocation(context, innerStart, innerEnd),
     },
     loc: getSourceLocation(context, sourceStart, sourceEnd),
-  }
+  } as InterpolationNode
 }

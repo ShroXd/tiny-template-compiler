@@ -7,7 +7,7 @@ import {
   getCursor,
   getSourceLocation,
 } from '../utils'
-import { ParserContext } from './parser'
+import { ParserContext } from './parserContext'
 
 interface AttributeValue {
   content: string

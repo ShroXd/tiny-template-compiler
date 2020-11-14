@@ -1,4 +1,4 @@
-import { RootNode, TemplateBaseNode } from '../ast'
+import { RootNode, TemplateChildNode } from '../ast'
 import { transformContext } from './transformContext'
 import { transformElement } from './transformElement'
 import { transformExpression } from './transformExpression'
@@ -10,7 +10,7 @@ export interface TransformOptions {
 
 // 一些节点转换函数返回一个或一组退出函数
 export type NodeTransform = (
-  node: RootNode | TemplateBaseNode,
+  node: RootNode | TemplateChildNode,
   context: transformContext
 ) => void | (() => void) | (() => void)[]
 

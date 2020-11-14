@@ -5,7 +5,7 @@
 // TODO block tree      improve diff
 // TODO hoistStatic     improve create node
 
-import { NodeTypes, RootNode, TemplateBaseNode, ParentNode } from '../ast'
+import { NodeTypes, RootNode, TemplateChildNode, ParentNode } from '../ast'
 import { isArray } from '../utils'
 import { createTransformContext, transformContext } from './transformContext'
 import { TransformOptions } from './transformOptions'
@@ -16,15 +16,15 @@ export function transform(root: RootNode, options: TransformOptions = {}) {
 }
 
 export function traverseNode(
-  node: RootNode | TemplateBaseNode,
+  node: RootNode | TemplateChildNode,
   context: transformContext
 ) {
   const { nodeTransforms } = context
-  const exitFns = [] // 退出函数
+  const exitFns = []
 
   context.currentNode = node
 
-  nodeTransforms.forEach((val, index, arr) => {
+  nodeTransforms.forEach((val) => {
     const currentExitFns = val(node, context)
 
     if (currentExitFns) {

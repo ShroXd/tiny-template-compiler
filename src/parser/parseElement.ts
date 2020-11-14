@@ -1,7 +1,8 @@
-import { parseChildren, ParserContext } from './parser'
+import { parseChildren } from './parser'
 import { ElementNode, TagType } from '../ast'
 import { parseTag } from './parseTag'
 import { getSourceLocation } from '../utils'
+import { ParserContext } from './parserContext'
 
 export function parseElement(
   context: ParserContext,

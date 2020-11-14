@@ -1,6 +1,6 @@
 import {
   NodeTypes,
-  TemplateBaseNode,
+  TemplateChildNode,
   ElementNode,
   TagType,
   SourceLocation,
@@ -21,7 +21,7 @@ import { parseTag } from './parseTag'
 import { parseInterpolation } from './parseInterpolation'
 import { createParserContext, ParserContext } from './parserContext'
 
-type Token = TemplateBaseNode | TemplateBaseNode[] | undefined
+type Token = TemplateChildNode | TemplateChildNode[] | undefined
 
 export const enum TextModes {}
 
@@ -39,7 +39,7 @@ export function parseChildren(
   ancestors: ElementNode[]
 ) {
   const parent = ancestors[ancestors.length - 1]
-  const tokens: TemplateBaseNode[] = []
+  const tokens: TemplateChildNode[] = []
 
   const handleComment = (stream: string): Token => {
     let token: Token
@@ -150,7 +150,7 @@ const locStub: SourceLocation = {
   end: { line: 1, column: 1, offset: 0 },
 }
 
-function createRoot(children: TemplateBaseNode[], loc = locStub): RootNode {
+function createRoot(children: TemplateChildNode[], loc = locStub): RootNode {
   return {
     type: NodeTypes.ROOT,
     children,
@@ -201,7 +201,7 @@ function isCDATA(stream: string): boolean {
   return stream.startsWith('<![CDATA[')
 }
 
-function saveCurrentToken(token: Token, tokens: TemplateBaseNode[]) {
+function saveCurrentToken(token: Token, tokens: TemplateChildNode[]) {
   if (isArray(token)) {
     token.forEach((t) => {
       pushNode(t, tokens)

@@ -1,6 +1,6 @@
 import { advanceBy, emitError, getCursor, getSourceLocation } from '../utils'
 import { NodeTypes, CommentNode } from '../ast'
-import { ParserContext } from './parser'
+import { ParserContext } from './parserContext'
 import { ErrorCodes } from '../helpers/errors'
 
 export function parseComment(context): CommentNode {

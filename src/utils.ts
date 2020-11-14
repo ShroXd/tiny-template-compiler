@@ -1,4 +1,4 @@
-import { NodeTypes, SourceLocation, TemplateBaseNode } from './ast'
+import { NodeTypes, SourceLocation, TemplateChildNode } from './ast'
 import { CompilerError } from './helpers/errors'
 import { ParserContext } from './parser/parserContext'
 
@@ -33,7 +33,7 @@ export function getCursor(context): CodeLocation {
   return { line, column, offset }
 }
 
-export function pushNode(node: TemplateBaseNode, nodes: TemplateBaseNode[]) {
+export function pushNode(node: TemplateChildNode, nodes: TemplateChildNode[]) {
   if (node.type === NodeTypes.TEXT) {
     // mergeTextNode(prevElement(nodes), node);
   }

@@ -1,3 +1,8 @@
+import { transformContext } from './transform/transformContext'
+
+/**
+ * Base Types
+ */
 export const enum ElementTypes {
   ELEMENT,
   COMPONENT,
@@ -13,12 +18,78 @@ export const enum NodeTypes {
   ATTRIBUTE,
   INTERPOLATION,
   SIMPLE_EXPRESSION,
+
+  COMPOUND_EXPRESSION,
+  IF,
+  IF_BRANCH,
+  FOR,
+  TEXT_CALL,
+
+  // code generate
+  VNODE_CALL,
+  JS_CALL_EXPRESSION,
+  JS_OBJECT_EXPRESSION,
+  JS_PROPERTY,
+  JS_ARRAY_EXPRESSION,
+  JS_FUNCTION_EXPRESSION,
+  JS_CONDITIONAL_EXPRESSION,
+  JS_CACHE_EXPRESSION,
 }
 
-export interface SimpleExpressionNode extends Node {
-  type: NodeTypes.SIMPLE_EXPRESSION
-  content: string
+export interface Node {
+  type: NodeTypes
+  loc: SourceLocation
+  codeGenerateNode?: any
 }
+
+/*
+ * Helpers
+ * */
+export interface Position {
+  line: number
+  column: number
+  offset: number
+}
+
+// TODO add source code
+export interface SourceLocation {
+  start: Position
+  end: Position
+}
+
+export const enum TagType {
+  Start,
+  End,
+}
+
+/**
+ * Union Types
+ */
+export type ElementNode =
+  | PlainElementNode
+  | ComponentNode
+  | SlotNode
+  | TemplateNode
+
+// TODO add if for
+export type ParentNode = RootNode | ElementNode
+
+export type TemplateChildNode =
+  | CommentNode
+  | TextNode
+  | ElementNode
+  | InterpolationNode
+
+export type TemplateTextChildNode =
+  | TextNode
+  | InterpolationNode
+  | CompoundExpressionNode
+
+export type ExpressionNode = SimpleExpressionNode | CompoundExpressionNode
+
+export type PropsExpression = ObjectExpression | CallExpression | ExpressionNode
+
+export type JSChildNode = VNodeCall | CallExpression
 
 /**
  * Element Type
@@ -27,9 +98,14 @@ export interface BaseElementNode extends Node {
   type: NodeTypes.ELEMENT
   namespace: number
   tag: string
+  tagType: ElementTypes
   isSelfClosing: boolean
   props: AttributeNode[]
-  children: TemplateBaseNode[]
+  children: TemplateChildNode[]
+}
+
+export interface PlainElementNode extends BaseElementNode {
+  tagType: ElementTypes.ELEMENT
 }
 
 export interface ComponentNode extends BaseElementNode {
@@ -44,19 +120,17 @@ export interface TemplateNode extends BaseElementNode {
   tagType: ElementTypes.TEMPLATE
 }
 
-export type ElementNode = ComponentNode | SlotNode | TemplateNode
+export interface SimpleExpressionNode extends Node {
+  type: NodeTypes.SIMPLE_EXPRESSION
+  content: string
+}
 
 /**
  * Node Type
  */
-export interface Node {
-  type: NodeTypes
-  loc: SourceLocation
-}
-
 export interface RootNode extends Node {
   type: NodeTypes.ROOT
-  children: TemplateBaseNode[]
+  children: TemplateChildNode[]
 }
 
 export interface CommentNode extends Node {
@@ -80,38 +154,67 @@ export interface InterpolationNode extends Node {
   content: SimpleExpressionNode
 }
 
-export type TemplateBaseNode =
-  | CommentNode
-  | TextNode
-  | ElementNode
-  | InterpolationNode
+export interface SimpleExpressionNode extends Node {
+  type: NodeTypes.SIMPLE_EXPRESSION
+  content: string
+  isStatic: boolean
+  isConstant: boolean
+  // TODO hoisted
+}
 
-// TODO add if for
-export type ParentNode = RootNode | ElementNode
+export interface CompoundExpressionNode extends Node {
+  type: NodeTypes.COMPOUND_EXPRESSION
+  children: (
+    | SimpleExpressionNode
+    | CompoundExpressionNode
+    | InterpolationNode
+    | TextNode
+    | string
+    | symbol
+  )[]
+}
 
-/*
- * Pattern
+export interface IfNode extends Node {
+  type: NodeTypes.IF
+  branches: any[]
+  codeGenNode?: any
+}
+
+export interface IfBranchNode extends Node {
+  type: NodeTypes.IF_BRANCH
+  condition: ExpressionNode | undefined
+  children: TemplateChildNode[]
+}
+
+/**
+ * JS Node Types
  */
-export enum Pattern {
-  COMMENT = '<!--',
+export interface VNodeCall extends Node {
+  type: NodeTypes.VNODE_CALL
+  tag: string | symbol
+  props: PropsExpression | undefined
+  children: TemplateChildNode[] | TemplateTextChildNode
 }
 
-/*
- * Helpers
- * */
-export interface Position {
-  line: number
-  column: number
-  offset: number
+export interface CallExpression extends Node {
+  type: NodeTypes.JS_CALL_EXPRESSION
+  callee: string | symbol
+  arguments: (
+    | string
+    | symbol
+    | JSChildNode
+    | TemplateChildNode
+    | TemplateChildNode[]
+  )[]
 }
 
-// TODO add source code
-export interface SourceLocation {
-  start: Position
-  end: Position
+export interface Property extends Node {
+  type: NodeTypes.JS_PROPERTY
 }
 
-export const enum TagType {
-  Start,
-  End,
+export interface ObjectExpression extends Node {
+  type: NodeTypes.JS_OBJECT_EXPRESSION
+  properties: Array<Property>
 }
+
+export function createCodeGenerateNode(context: transformContext | null) {}

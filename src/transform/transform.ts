@@ -13,6 +13,9 @@ import { TransformOptions } from './transformOptions'
 export function transform(root: RootNode, options: TransformOptions = {}) {
   const context = createTransformContext(root, options)
   traverseNode(root, context)
+
+  // for unit test
+  return root
 }
 
 export function traverseNode(
@@ -24,9 +27,8 @@ export function traverseNode(
 
   context.currentNode = node
 
-  nodeTransforms.forEach((val) => {
-    const currentExitFns = val(node, context)
-
+  for (let i = 0; i < nodeTransforms.length; i++) {
+    const currentExitFns = nodeTransforms[i](node, context)
     if (currentExitFns) {
       if (isArray(currentExitFns)) {
         exitFns.push(...currentExitFns)
@@ -34,14 +36,12 @@ export function traverseNode(
         exitFns.push(currentExitFns)
       }
     }
-
     if (!context.currentNode) {
       return
     } else {
-      // val() 转换函数可能改变节点
       node = context.currentNode
     }
-  })
+  }
 
   switch (node.type) {
     case NodeTypes.COMMENT:

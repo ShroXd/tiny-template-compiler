@@ -48,6 +48,14 @@ export function getSourceLocation(context, start, end?): SourceLocation {
   }
 }
 
+export function getInnerRange(
+  loc: SourceLocation,
+  offset: number,
+  length?: number
+): SourceLocation {
+  return {} as SourceLocation
+}
+
 export const isString = (val: unknown): val is string => typeof val === 'string'
 export const isArray = Array.isArray
 export const extend = Object.assign

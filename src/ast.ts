@@ -1,4 +1,6 @@
+import { locStub } from './parser/parser'
 import { transformContext } from './transform/transformContext'
+import { isString } from './utils'
 
 /**
  * Base Types
@@ -210,6 +212,8 @@ export interface CallExpression extends Node {
 
 export interface Property extends Node {
   type: NodeTypes.JS_PROPERTY
+  key: ExpressionNode
+  value: JSChildNode
 }
 
 export interface ObjectExpression extends Node {
@@ -217,4 +221,49 @@ export interface ObjectExpression extends Node {
   properties: Array<Property>
 }
 
-export function createCodeGenerateNode(context: transformContext | null) {}
+export function createCodeGenerateNode(
+  context: transformContext | null,
+  tag: any,
+  props?: any,
+  children?: any,
+  loc = locStub
+) {
+  if (context) {
+    // TODO create vnode
+  }
+
+  return {
+    type: NodeTypes.VNODE_CALL,
+    tag,
+    props,
+    children,
+    loc,
+  }
+}
+
+export function createObjectProperty(
+  key: Property['key'],
+  value: any
+): Property {
+  return {
+    type: NodeTypes.JS_PROPERTY,
+    loc: locStub,
+    key: isString(key) ? createSimpleExpression(key, true) : key,
+    value,
+  }
+}
+
+export function createSimpleExpression(
+  content: any,
+  isStatic: any,
+  loc: SourceLocation = locStub,
+  isConstant: boolean = false
+): SimpleExpressionNode {
+  return {
+    type: NodeTypes.SIMPLE_EXPRESSION,
+    loc,
+    isConstant,
+    content,
+    isStatic,
+  }
+}

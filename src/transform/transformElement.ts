@@ -1,6 +1,12 @@
 import {
+  createCodeGenerateNode,
+  createObjectProperty,
+  createSimpleExpression,
+  ElementNode,
   ElementTypes,
   NodeTypes,
+  ObjectExpression,
+  PropsExpression,
   RootNode,
   TemplateChildNode,
   VNodeCall,
@@ -25,16 +31,46 @@ export const transformElement: NodeTransform = (node, context) => {
     const { tag, props } = node
     const isComponent = node.tagType === ElementTypes.COMPONENT
 
+    const vnodeTag = `"${tag}"`
     let vnodeProps: any
     let vnodeChildren: any
 
     if (props.length > 0) {
       const propsBuildResult = buildProps(node, context)
+      vnodeProps = propsBuildResult.props
     }
+
+    node.codeGenerateNode = createCodeGenerateNode(
+      context,
+      vnodeTag,
+      vnodeProps,
+      vnodeChildren,
+      node.loc
+    )
   }
 }
 
 export function buildProps(
-  node: RootNode | TemplateChildNode,
-  context: transformContext
-) {}
+  node: ElementNode,
+  context: transformContext,
+  props: any = node.props
+) {
+  const { tag, loc } = node
+  const isComponent = node.tagType === ElementTypes.COMPONENT
+  let properties: ObjectExpression['properties'] = []
+
+  for (let i = 0; i < props.length; i++) {
+    const prop = props[i]
+
+    if (prop.type === NodeTypes.ATTRIBUTE) {
+      const { name, value, loc } = prop
+      properties.push()
+    }
+  }
+
+  let propsExpression: PropsExpression | undefined
+
+  return {
+    props: propsExpression,
+  }
+}

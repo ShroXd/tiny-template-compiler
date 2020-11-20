@@ -145,7 +145,7 @@ export function parseChildren(
   return needFilterWhitespace ? tokens.filter(Boolean) : tokens
 }
 
-const locStub: SourceLocation = {
+export const locStub: SourceLocation = {
   start: { line: 1, column: 1, offset: 0 },
   end: { line: 1, column: 1, offset: 0 },
 }
